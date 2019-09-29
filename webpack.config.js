@@ -15,11 +15,11 @@ var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
     // See https://github.com/jantimon/html-webpack-plugin
-    indexHtmlTemplate: './src/Client/index.html',
-    fsharpEntry: './src/Client/FableReversi.fsproj',
-    cssEntry: './src/Client/style.scss',
-    outputDir: './src/Client/deploy',
-    assetsDir: './src/Client/public',
+    indexHtmlTemplate: './src/FableReversi/index.html',
+    fsharpEntry: './src/FableReversi/FableReversi.fsproj',
+    cssEntry: './src/FableReversi/style.scss',
+    outputDir: './src/FableReversi/deploy',
+    assetsDir: './src/FableReversi/public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
     // to a external API server. See https://webpack.js.org/configuration/dev-server/#devserver-proxy

@@ -14,7 +14,7 @@ open Fake.IO
 
 Target.initEnvironment ()
 
-let clientPath = Path.getFullName "./src/Client"
+let clientPath = Path.getFullName "./src/FableReversi"
 let clientDeployPath = Path.combine clientPath "deploy"
 let deployDir = Path.getFullName "./deploy"
 
