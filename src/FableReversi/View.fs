@@ -1,16 +1,24 @@
 module FableReversi.View
 
+open Fable.FontAwesome
 open Fable.React
+open Fable.React.Props
 open Fulma
 
 open Types
 open FableReversi.Reversi
 
+let blackColour = Fa.Props [ Style [ Color "black" ] ]
+let whiteColour = Fa.Props [ Style [ Color "white" ] ]
+
+let tableCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px" ] ]
+
 let showSquare square =
+
     match square with
-    | Empty -> str "#"
-    | Piece Black -> str "B"
-    | Piece White -> str "W"
+    | Empty -> td tableCellProps []
+    | Piece Black -> td tableCellProps [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; blackColour ] [] ]
+    | Piece White -> td tableCellProps [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; whiteColour ] [] ]
 
 let showBoard position =
     let rows =
@@ -18,7 +26,7 @@ let showBoard position =
             yield tr []
                 [ for x in 0..(position.Size - 1) do
                     yield showSquare (Position.pieceAt position (Location (x, y)) ) ] ]
-    Table.table [ Table.IsBordered; Table.IsNarrow ]
+    Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
 let button txt onClick =
@@ -36,5 +44,4 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "Fable Reversi" ] ] ]
 
           Container.container []
-              [ showBoard model.Position
-              ] ]
+              [ showBoard model.Position ] ]
