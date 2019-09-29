@@ -33,7 +33,7 @@ let view (model : Model) (dispatch : Msg -> unit) =
         [ Navbar.navbar [ Navbar.Color IsPrimary ]
             [ Navbar.Item.div [ ]
                 [ Heading.h2 [ ]
-                    [ str "SAFE Template" ] ] ]
+                    [ str "Fable Reversi" ] ] ]
 
           Container.container []
               [ showBoard model.Position
