@@ -5,14 +5,10 @@ open Elmish
 open Types
 
 let init () =
-    let initialModel = { Counter = 0 }
+    let initialModel = { Position = Reversi.Position.createStarting() }
     initialModel, Cmd.none
 
-let update (msg : Msg) (currentModel : Model) : Model * Cmd<Msg> =
-    match currentModel.Counter, msg with
-    | n, Increment ->
-        let nextModel = { currentModel with Counter = n + 1 }
-        nextModel, Cmd.none
-    | n, Decrement ->
-        let nextModel = { currentModel with Counter = n - 1 }
-        nextModel, Cmd.none
+let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
+    match model, msg with
+    | _ ->
+        model, Cmd.none

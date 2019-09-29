@@ -4,9 +4,22 @@ open Fable.React
 open Fulma
 
 open Types
+open FableReversi.Reversi
 
-let show = function
-    | { Counter = n } -> string n
+let showSquare square =
+    match square with
+    | Empty -> str "#"
+    | Piece Black -> str "B"
+    | Piece White -> str "W"
+
+let showBoard position =
+    let rows =
+        [ for y in (position.Size - 1).. -1 ..0 do
+            yield tr []
+                [ for x in 0..(position.Size - 1) do
+                    yield showSquare (Position.pieceAt position (Location (x, y)) ) ] ]
+    Table.table [ Table.IsBordered; Table.IsNarrow ]
+        [ tbody [] rows ]
 
 let button txt onClick =
     Button.button
@@ -23,8 +36,5 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "SAFE Template" ] ] ]
 
           Container.container []
-              [ Content.content [ Content.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
-                    [ Heading.h3 [] [ str ("Press buttons to manipulate counter: " + show model) ] ]
-                Columns.columns []
-                    [ Column.column [] [ button "-" (fun _ -> dispatch Decrement) ]
-                      Column.column [] [ button "+" (fun _ -> dispatch Increment) ] ] ] ]
+              [ showBoard model.Position
+              ] ]

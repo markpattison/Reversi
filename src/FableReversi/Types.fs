@@ -1,6 +1,8 @@
 module FableReversi.Types
 
-type Model = { Counter: int }
+open FableReversi.Reversi
+
+type Model = { Position: Position }
 
 type Msg =
     | Increment
