@@ -19,6 +19,6 @@ Program.mkProgram State.init State.update View.view
 #endif
 |> Program.withReactBatched "elmish-app"
 #if DEBUG
-|> Program.withDebugger
+//|> Program.withDebugger
 #endif
 |> Program.run

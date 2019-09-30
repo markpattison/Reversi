@@ -19,3 +19,4 @@ type Model =
 
 type Msg =
     | Hover of Location
+    | Click of Location

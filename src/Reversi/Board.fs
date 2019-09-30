@@ -13,12 +13,6 @@ type Location =
     | Location of int * int
     static member (+) ((Location (x1, y1)), (Location (x2, y2))) = Location (x1 + x2, y1 + y2)
 
-type PossibleMove =
-    {
-        MoveLocation: Location
-        Flips: Location list
-    }
-
 type Board =
     {
         NextToMove: Colour
@@ -26,7 +20,19 @@ type Board =
         Squares: Square []
     }
 
+type PossibleMove =
+    {
+        MoveLocation: Location
+        Flips: Location list
+        Result: Board
+    }
+
 module Board =
+    let oppositeOf colour =
+        match colour with
+        | White -> Black
+        | Black -> White
+    
     let createEmpty boardSize =
         {
             NextToMove = Black
@@ -36,19 +42,31 @@ module Board =
 
     let inline indexOf size (Location (x, y)) = x + y * size
 
-    let private setPiece board location square =
-        board.Squares.[indexOf board.Size location] <- square
+    let private setPiece size (squares: Square []) location colour =
+        let i = indexOf size location
+
+        if squares.[i] = Empty then
+            squares.[i] <- Piece colour
+        else
+            failwith "Tried to place a piece on an occupied square"
 
     let private getPiece board location =
         board.Squares.[indexOf board.Size location]
 
+    let private flipPiece size (squares: Square []) location =
+        let i = indexOf size location
+
+        match squares.[i] with
+        | Empty -> failwith "Tried to flip empty square"
+        | Piece colour -> squares.[i] <- Piece (oppositeOf colour)
+
     let createStarting() =
         let board = createEmpty 8
 
-        Piece Black |> setPiece board (Location (3, 3))
-        Piece Black |> setPiece board (Location (4, 4))
-        Piece White |> setPiece board (Location (3, 4))
-        Piece White |> setPiece board (Location (4, 3))
+        setPiece board.Size board.Squares (Location (3, 3)) Black
+        setPiece board.Size board.Squares (Location (4, 4)) Black
+        setPiece board.Size board.Squares (Location (3, 4)) White
+        setPiece board.Size board.Squares (Location (4, 3)) White
 
         board
 
@@ -62,11 +80,6 @@ module Board =
 
     let pieceAt board location =
         board.Squares.[indexOf board.Size location]
-
-    let opposite colour =
-        match colour with
-        | White -> Black
-        | Black -> White
 
     let private isOnBoard size (Location (x, y)) =
         x >= 0 && x < size && y >= 0 && y < size
@@ -98,11 +111,22 @@ module Board =
         else
             None
 
+    let private moveResult board moveLocation flips =
+        let squares = Array.copy board.Squares
+
+        flips |> List.iter (flipPiece board.Size squares)
+
+        setPiece board.Size squares moveLocation board.NextToMove
+
+        { board with Squares = squares; NextToMove = oppositeOf board.NextToMove }
+
     let possibleMoves board =
         [
             for x in 0..(board.Size - 1) do
                 for y in 0..(board.Size - 1) do
-                    match isPossibleMove board (Location (x, y)) with
-                    | Some flips -> yield { MoveLocation = (Location (x, y)); Flips = flips }
+                    let moveLocation = Location (x, y)
+                    match isPossibleMove board moveLocation with
+                    | Some flips ->
+                        yield { MoveLocation = moveLocation; Flips = flips; Result = moveResult board moveLocation flips }
                     | None -> ()
         ]

@@ -37,6 +37,7 @@ let init () =
 
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     match msg with
+
     | Hover location ->
         match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
         | Some possibleMove ->
@@ -44,3 +45,13 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
             { model with BoardView = boardView }, Cmd.none
         
         | None -> { model with BoardView = toBoardView model.Board }, Cmd.none
+    
+    | Click location ->
+        match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
+        | Some possibleMove ->
+            let board = possibleMove.Result
+            let possibleMoves = Board.possibleMoves board
+            let boardView = toBoardView board
+            { model with Board = board; PossibleMoves = possibleMoves; BoardView = boardView }, Cmd.none
+        
+        | None -> model, Cmd.none

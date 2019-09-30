@@ -29,8 +29,9 @@ let showSquare dispatch location (square, view) =
         | Piece White -> [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; whiteColour ] [] ]
     
     let onHover = OnMouseOver (fun _ -> Hover location |> dispatch) :> IHTMLProp
+    let onClick = OnClick (fun _ -> Click location |> dispatch) :> IHTMLProp
 
-    td (onHover :: cellProps) cellContent
+    td (onClick :: onHover :: cellProps) cellContent
 
 let showBoard dispatch boardView =
     let rows =
@@ -57,4 +58,5 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "Fable Reversi" ] ] ]
 
           Container.container []
-              [ showBoard dispatch model.BoardView ] ]
+              [ showBoard dispatch model.BoardView
+                sprintf "Next to play: %O" model.Board.NextToMove |> str ] ]
