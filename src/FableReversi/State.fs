@@ -6,32 +6,33 @@ open FableReversi.Reversi
 open Types
 
 let toBoardView (board: Board) =
-    { SquareViews = board.CopySquares() |> Array.map (fun sq -> (sq, Plain))
-      SizeView = board.Size }
+    { SquareViews =
+        List.init board.Size (fun x ->
+            List.init board.Size (fun y ->
+                let location = Location (x, y)
+                (location, board.Square location, Plain))) }
 
 let toBoardViewPossibleMove (board: Board) possibleMove =
-    let flipIndices = possibleMove.Flips |> List.map (Board.indexOf board.Size)
-    let squareViews =
-        board.CopySquares() |> Array.mapi (fun i sq ->
-            let view =
-                if i = Board.indexOf board.Size possibleMove.MoveLocation then
-                    PossibleMove
-                elif List.contains i flipIndices then
-                    WouldFlip
-                else
-                    Plain
-
-            (sq, view))
-
-    { SquareViews = squareViews; SizeView = board.Size }
-
+    { SquareViews =
+        List.init board.Size (fun x ->
+            List.init board.Size (fun y ->
+                let location = Location (x, y)
+                let view =
+                    if location = possibleMove.MoveLocation then
+                        PossibleMove
+                    elif List.contains location possibleMove.Flips then
+                        WouldFlip
+                    else
+                        Plain
+                (location, board.Square location, view))) }
+    
 let init () =
-    let startingBoard = Board.createStarting()
+    let startingBoard = Board()
 
     let initialModel =
         { Board = startingBoard
           BoardView = toBoardView startingBoard
-          PossibleMoves = Board.possibleMoves startingBoard }
+          PossibleMoves = startingBoard.PossibleMoves() }
     
     initialModel, Cmd.none
 
@@ -50,7 +51,7 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
         | Some possibleMove ->
             let board = possibleMove.Result
-            let possibleMoves = Board.possibleMoves board
+            let possibleMoves = board.PossibleMoves()
             let boardView = toBoardView board
             { model with Board = board; PossibleMoves = possibleMoves; BoardView = boardView }, Cmd.none
         

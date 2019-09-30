@@ -15,7 +15,7 @@ let plainCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Cente
 let possibleMoveCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00f000" ] ]
 let wouldFlipCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00d000" ] ]
 
-let showSquare dispatch location (square, view) =
+let showSquare dispatch (location, square, view) =
     let cellProps : IHTMLProp list =
         match view with
         | Plain -> plainCellProps
@@ -35,11 +35,10 @@ let showSquare dispatch location (square, view) =
 
 let showBoard dispatch boardView =
     let rows =
-        [ for y in (boardView.SizeView - 1).. -1 ..0 do
-            yield tr []
-                [ for x in 0..(boardView.SizeView - 1) do
-                    let location = Location (x, y)
-                    yield showSquare dispatch location (boardView.PieceAt(location)) ] ]
+        boardView.SquareViews
+        |> List.map (fun row -> 
+            tr [] (row |> List.map (showSquare dispatch)))
+    
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 

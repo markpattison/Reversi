@@ -8,9 +8,7 @@ type SquareView =
     | Plain
 
 type BoardView =
-    { SquareViews: (Square * SquareView) []
-      SizeView: int }
-    member this.PieceAt(Location (x, y)) = this.SquareViews.[x + y * this.SizeView]
+    { SquareViews: (Location * Square * SquareView) list list }
 
 type Model =
     { Board: Board
