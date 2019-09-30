@@ -5,7 +5,7 @@ open Elmish
 open Types
 
 let init () =
-    let initialModel = { Position = Reversi.Position.createStarting() }
+    let initialModel = { Board = Reversi.Board.createStarting() }
     initialModel, Cmd.none
 
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =

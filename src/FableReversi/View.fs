@@ -20,12 +20,12 @@ let showSquare square =
     | Piece Black -> td tableCellProps [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; blackColour ] [] ]
     | Piece White -> td tableCellProps [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; whiteColour ] [] ]
 
-let showBoard position =
+let showBoard board =
     let rows =
-        [ for y in (position.Size - 1).. -1 ..0 do
+        [ for y in (board.Size - 1).. -1 ..0 do
             yield tr []
-                [ for x in 0..(position.Size - 1) do
-                    yield showSquare (Position.pieceAt position (Location (x, y)) ) ] ]
+                [ for x in 0..(board.Size - 1) do
+                    yield showSquare (Board.pieceAt board (Location (x, y))) ] ]
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
@@ -44,4 +44,4 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "Fable Reversi" ] ] ]
 
           Container.container []
-              [ showBoard model.Position ] ]
+              [ showBoard model.Board ] ]

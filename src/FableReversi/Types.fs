@@ -2,7 +2,7 @@ module FableReversi.Types
 
 open FableReversi.Reversi
 
-type Model = { Position: Position }
+type Model = { Board: Board }
 
 type Msg =
     | Increment
