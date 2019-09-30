@@ -5,14 +5,14 @@ open Elmish
 open FableReversi.Reversi
 open Types
 
-let toBoardView board =
-    { SquareViews = board.Squares |> Array.map (fun sq -> (sq, Plain))
+let toBoardView (board: Board) =
+    { SquareViews = board.CopySquares() |> Array.map (fun sq -> (sq, Plain))
       SizeView = board.Size }
 
-let toBoardViewPossibleMove board possibleMove =
+let toBoardViewPossibleMove (board: Board) possibleMove =
     let flipIndices = possibleMove.Flips |> List.map (Board.indexOf board.Size)
     let squareViews =
-        board.Squares |> Array.mapi (fun i sq ->
+        board.CopySquares() |> Array.mapi (fun i sq ->
             let view =
                 if i = Board.indexOf board.Size possibleMove.MoveLocation then
                     PossibleMove
