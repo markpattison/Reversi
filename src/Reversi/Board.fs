@@ -76,13 +76,16 @@ module Board =
         let mutable foundEmpty = false
         let mutable foundColour = false
 
-        [ while (isOnBoard board.Size location' && not foundEmpty && not foundColour) do
-            match getPiece board location' with
-            | Empty -> foundEmpty <- true
-            | Piece c when c = board.NextToMove -> foundColour <- true
-            | _ -> yield location'
-            location' <- location' + direction
-        ]
+        let flips =
+            [ while (isOnBoard board.Size location' && not foundEmpty && not foundColour) do
+                match getPiece board location' with
+                | Empty -> foundEmpty <- true
+                | Piece c when c = board.NextToMove -> foundColour <- true
+                | _ -> yield location'
+                location' <- location' + direction
+            ]
+        
+        if foundColour then flips else []
 
     let private directions =
         [ (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) ]
