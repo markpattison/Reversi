@@ -58,10 +58,12 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     
     | Click location ->
         match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
-        | Some possibleMove ->
-            let board = possibleMove.Result
-            let possibleMoves = board.PossibleMoves()
-            let boardView = toBoardView board
-            { model with Board = board; PossibleMoves = possibleMoves; BoardView = boardView }, Cmd.none
-        
+        | Some possibleMove -> model, Cmd.ofMsg (PlayMove possibleMove)
         | None -> model, Cmd.none
+    
+    | PlayMove possibleMove ->
+        let board = possibleMove.Result
+        let possibleMoves = board.PossibleMoves()
+        let boardView = toBoardView board
+        { model with Board = board; PossibleMoves = possibleMoves; BoardView = boardView }, Cmd.none
+       
