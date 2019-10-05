@@ -4,6 +4,7 @@ open FableReversi.Reversi
 
 type SquareView =
     | PossibleMove
+    | PossibleMoveHover
     | WouldFlip
     | Plain
 

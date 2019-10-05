@@ -6,22 +6,31 @@ open FableReversi.Reversi
 open Types
 
 let toBoardView (board: Board) =
+    let possibleMoves = board.PossibleMoves() |> List.map (fun pm -> pm.MoveLocation)
     { SquareViews =
         List.init board.Size (fun x ->
             List.init board.Size (fun y ->
                 let location = Location (x, y)
-                (location, board.Square location, Plain))) }
+                let view =
+                    if List.contains location possibleMoves then
+                        PossibleMove
+                    else
+                        Plain
+                (location, board.Square location, view))) }
 
-let toBoardViewPossibleMove (board: Board) possibleMove =
+let toBoardViewPossibleMoveHover (board: Board) possibleMove =
+    let possibleMoves = board.PossibleMoves() |> List.map (fun pm -> pm.MoveLocation)
     { SquareViews =
         List.init board.Size (fun x ->
             List.init board.Size (fun y ->
                 let location = Location (x, y)
                 let view =
                     if location = possibleMove.MoveLocation then
-                        PossibleMove
+                        PossibleMoveHover
                     elif List.contains location possibleMove.Flips then
                         WouldFlip
+                    elif List.contains location possibleMoves then
+                        PossibleMove
                     else
                         Plain
                 (location, board.Square location, view))) }
@@ -42,7 +51,7 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     | Hover location ->
         match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
         | Some possibleMove ->
-            let boardView = toBoardViewPossibleMove model.Board possibleMove
+            let boardView = toBoardViewPossibleMoveHover model.Board possibleMove
             { model with BoardView = boardView }, Cmd.none
         
         | None -> { model with BoardView = toBoardView model.Board }, Cmd.none

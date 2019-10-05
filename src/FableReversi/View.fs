@@ -12,7 +12,8 @@ let blackColour = Fa.Props [ Style [ Color "black" ] ]
 let whiteColour = Fa.Props [ Style [ Color "white" ] ]
 
 let plainCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00b000" ] ]
-let possibleMoveCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00f000" ] ]
+let possibleMoveCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00d000" ] ]
+let possibleMoveHoverCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00f000" ] ]
 let wouldFlipCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00d000" ] ]
 
 let showSquare dispatch (location, square, view) =
@@ -20,6 +21,7 @@ let showSquare dispatch (location, square, view) =
         match view with
         | Plain -> plainCellProps
         | PossibleMove -> possibleMoveCellProps
+        | PossibleMoveHover -> possibleMoveHoverCellProps
         | WouldFlip -> wouldFlipCellProps
 
     let cellContent =
