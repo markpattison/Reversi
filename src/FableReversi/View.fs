@@ -67,4 +67,6 @@ let view (model : Model) (dispatch : Msg -> unit) =
 
           Container.container []
               [ showBoard dispatch model.BoardView
-                sprintf "Next to play: %O" model.Board.NextToMove |> str ] ]
+                sprintf "Next to play: %O" model.Board.NextToMove |> str
+                br []
+                sprintf "State: %O" (model.Board.GameState()) |> str ] ]
