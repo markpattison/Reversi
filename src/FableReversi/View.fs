@@ -8,15 +8,18 @@ open Fulma
 open Types
 open FableReversi.Reversi
 
-let blackColour = Fa.Props [ Style [ Color "#000000" ] ]
-let whiteColour = Fa.Props [ Style [ Color "#ffffff" ] ]
-let blackFlipColour = Fa.Props [ Style [ Color "#606060" ] ]
-let whiteFlipColour = Fa.Props [ Style [ Color "#d0d0d0" ] ]
+let toPieceIcon colour = [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; Fa.Props [ Style [ Color colour ] ] ] [] ]
+let toCellProps colour : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor colour ] ]
 
-let plainCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00b000" ] ]
-let possibleMoveCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00d000" ] ]
-let possibleMoveHoverCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00f000" ] ]
-let wouldFlipCellProps : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor "#00d000" ] ]
+let blackPiece = toPieceIcon "#000000"
+let whitePiece = toPieceIcon "#ffffff"
+let blackFlipPiece = toPieceIcon "#606060"
+let whiteFlipPiece = toPieceIcon "#d0d0d0"
+
+let plainCellProps = toCellProps "#00b000"
+let possibleMoveCellProps = toCellProps "#00d000"
+let possibleMoveHoverCellProps = toCellProps "#00f000"
+let wouldFlipCellProps = toCellProps "#00d000"
 
 let showSquare dispatch (location, square, view) =
     let cellProps : IHTMLProp list =
@@ -29,10 +32,10 @@ let showSquare dispatch (location, square, view) =
     let cellContent =
         match square, view with
         | Empty, _ -> []
-        | Piece Black, WouldFlip -> [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; blackFlipColour ] [] ]
-        | Piece Black, _ -> [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; blackColour ] [] ]
-        | Piece White, WouldFlip -> [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; whiteFlipColour ] [] ]
-        | Piece White, _ -> [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; whiteColour ] [] ]
+        | Piece Black, WouldFlip -> blackFlipPiece
+        | Piece Black, _ -> blackPiece
+        | Piece White, WouldFlip -> whiteFlipPiece
+        | Piece White, _ -> whitePiece
     
     let onHover = OnMouseOver (fun _ -> Hover location |> dispatch) :> IHTMLProp
     let onClick = OnClick (fun _ -> Click location |> dispatch) :> IHTMLProp
