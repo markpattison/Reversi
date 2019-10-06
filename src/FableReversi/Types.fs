@@ -14,9 +14,12 @@ type BoardView =
 type Model =
     { Board: Board
       PossibleMoves: PossibleMove list
-      BoardView: BoardView }
+      BoardView: BoardView
+      GameState: GameState }
 
 type Msg =
     | Hover of Location
     | Click of Location
     | PlayMove of PossibleMove
+    | SkipMove
+    | RestartGame

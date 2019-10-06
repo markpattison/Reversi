@@ -66,7 +66,9 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "Fable Reversi" ] ] ]
 
           Container.container []
-              [ showBoard dispatch model.BoardView
-                sprintf "Next to play: %O" model.Board.NextToMove |> str
-                br []
-                sprintf "State: %O" (model.Board.GameState()) |> str ] ]
+              [ yield showBoard dispatch model.BoardView
+                yield p [] [ sprintf "Next to play: %O" model.Board.NextToMove |> str ]
+                yield p [] [ sprintf "State: %O" (model.Board.GameState()) |> str ]
+                
+                if model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch SkipMove)
+                if model.GameState = Finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]

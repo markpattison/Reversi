@@ -93,6 +93,12 @@ type Board private (size: int, nextToMove: Colour, squares: Square []) =
 
         Board(size, opposite, newSquares)
     
+    member this.SkipMove() =
+        if this.GameState() = OngoingSkipMove then
+            Board(size, nextToMove.opposite, squares)
+        else
+            failwith "Cannot skip move"        
+
     member this.PossibleMoves() =
         [
             for x in 0..(size - 1) do

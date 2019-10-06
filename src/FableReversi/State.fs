@@ -41,7 +41,8 @@ let init () =
     let initialModel =
         { Board = startingBoard
           BoardView = toBoardView startingBoard
-          PossibleMoves = startingBoard.PossibleMoves() }
+          PossibleMoves = startingBoard.PossibleMoves()
+          GameState = startingBoard.GameState() }
     
     initialModel, Cmd.none
 
@@ -63,7 +64,17 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     
     | PlayMove possibleMove ->
         let board = possibleMove.Result
-        let possibleMoves = board.PossibleMoves()
-        let boardView = toBoardView board
-        { model with Board = board; PossibleMoves = possibleMoves; BoardView = boardView }, Cmd.none
-       
+        { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }, Cmd.none
+
+    | SkipMove ->
+        if model.GameState = OngoingSkipMove then
+            let board = model.Board.SkipMove()
+            { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }, Cmd.none
+        else
+            model, Cmd.none
+    
+    | RestartGame ->
+        if model.GameState = Finished then
+            init()
+        else
+            model, Cmd.none        
