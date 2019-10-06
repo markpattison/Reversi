@@ -46,6 +46,9 @@ let init () =
     
     initialModel, Cmd.none
 
+let updateBoard model board =
+    { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }
+
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     match msg with
 
@@ -63,13 +66,11 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         | None -> model, Cmd.none
     
     | PlayMove possibleMove ->
-        let board = possibleMove.Result
-        { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }, Cmd.none
+        updateBoard model possibleMove.Result, Cmd.none
 
     | SkipMove ->
         if model.GameState = OngoingSkipMove then
-            let board = model.Board.SkipMove()
-            { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }, Cmd.none
+            updateBoard model (model.Board.SkipMove()), Cmd.none
         else
             model, Cmd.none
     
@@ -77,4 +78,4 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         if model.GameState = Finished then
             init()
         else
-            model, Cmd.none        
+            model, Cmd.none
