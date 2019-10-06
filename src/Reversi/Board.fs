@@ -24,6 +24,7 @@ type GameState =
     | OngoingSkipMove
     | Finished
 
+
 type Board private (size: int, nextToMove: Colour, squares: Square []) =
 
     static let directions =
@@ -137,3 +138,7 @@ and PossibleMove =
         Flips: Location list
         Result: Board
     }
+
+and GameAction =
+    | SkipMove
+    | PlayMove of PossibleMove

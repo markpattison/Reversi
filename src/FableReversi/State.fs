@@ -62,16 +62,16 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     
     | Click location ->
         match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) model.PossibleMoves with
-        | Some possibleMove -> model, Cmd.ofMsg (PlayMove possibleMove)
+        | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
-    
-    | PlayMove possibleMove ->
+
+    | GameAction (PlayMove possibleMove) ->
         if List.contains possibleMove model.PossibleMoves then
             updateBoard model possibleMove.Result, Cmd.none
         else
             model, Cmd.none
 
-    | SkipMove ->
+    | GameAction SkipMove ->
         if model.GameState = OngoingSkipMove then
             updateBoard model (model.Board.SkipMove()), Cmd.none
         else

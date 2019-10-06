@@ -20,6 +20,5 @@ type Model =
 type Msg =
     | Hover of Location
     | Click of Location
-    | PlayMove of PossibleMove
-    | SkipMove
+    | GameAction of GameAction
     | RestartGame
