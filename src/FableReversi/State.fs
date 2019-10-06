@@ -46,10 +46,10 @@ let init () =
           BoardView = toBoardView startingBoard
           PossibleMoves = startingBoard.PossibleMoves()
           GameState = startingBoard.GameState()
-          PlayerBlack = Human
+          PlayerBlack = Computer Computer.Random.player
           PlayerWhite = Computer Computer.Random.player }
     
-    initialModel, Cmd.none
+    initialModel, Cmd.ofMsg RequestComputerMoveIfNeeded
 
 let updateBoard model board =
     { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }
@@ -82,19 +82,21 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
             | PlayMove possibleMove when List.exists (fun pm -> pm.MoveLocation = possibleMove.MoveLocation) model.PossibleMoves -> updateBoard model possibleMove.Result
             | SkipMove when model.GameState = OngoingSkipMove -> updateBoard model (model.Board.SkipMove())
             | _ -> model
-        
+
+        newModel, Cmd.ofMsg RequestComputerMoveIfNeeded
+    
+    | RequestComputerMoveIfNeeded ->
         let computerRequest =
-            match newModel.GameState, newModel.CurrentPlayer with
+            match model.GameState, model.CurrentPlayer with
             | _, Human -> Cmd.none
             | Finished, _ -> Cmd.none
             | OngoingSkipMove, _ -> Cmd.ofMsg (GameAction SkipMove)
             | Ongoing, Computer player ->
-                Cmd.OfAsync.perform requestComputerMove (player, newModel.Board) (fun move -> GameAction (PlayMove move))
+                Cmd.OfAsync.perform requestComputerMove (player, model.Board) (fun move -> GameAction (PlayMove move))
+        
+        model, computerRequest
 
-        newModel, computerRequest
-    
     | RestartGame ->
-        if model.GameState = Finished then
-            init()
-        else
-            model, Cmd.none
+        match model.GameState with
+        | Finished -> init()
+        | _ -> model, Cmd.none

@@ -32,4 +32,5 @@ type Msg =
     | Hover of Location
     | Click of Location
     | GameAction of GameAction
+    | RequestComputerMoveIfNeeded
     | RestartGame
