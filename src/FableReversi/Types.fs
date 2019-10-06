@@ -1,7 +1,7 @@
 module FableReversi.Types
 
 open FableReversi.Reversi
-open FableReversi.Reversi.Computer.Runner
+open FableReversi.Reversi.Computer
 
 type SquareView =
     | PossibleMove

@@ -3,7 +3,7 @@ module FableReversi.State
 open Elmish
 
 open FableReversi.Reversi
-open FableReversi.Reversi.Computer.Runner
+open FableReversi.Reversi.Computer
 open Types
 
 let toBoardView (board: Board) =
@@ -12,7 +12,6 @@ let toBoardView (board: Board) =
         List.init board.Size (fun i ->
             let y = board.Size - 1 - i
             List.init board.Size (fun x ->
-                printfn "loc %i %i" x y
                 let location = Location (x, y)
                 let view =
                     if List.contains location possibleMoves then
@@ -55,10 +54,10 @@ let init () =
 let updateBoard model board =
     { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }
 
-let requestComputerMove (board, player: ComputerPlayer) =
+let requestComputerMove (player: ComputerPlayer, board) =
     async {
         do! Async.Sleep 1000
-        return Play player board
+        return player.ChooseMove board
     }
 
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
@@ -88,8 +87,9 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
             match newModel.GameState, newModel.CurrentPlayer with
             | _, Human -> Cmd.none
             | Finished, _ -> Cmd.none
-            | _, Computer player ->
-                Cmd.OfAsync.perform requestComputerMove (newModel.Board, player) (fun gameAction -> GameAction gameAction)
+            | OngoingSkipMove, _ -> Cmd.ofMsg (GameAction SkipMove)
+            | Ongoing, Computer player ->
+                Cmd.OfAsync.perform requestComputerMove (player, newModel.Board) (fun move -> GameAction (PlayMove move))
 
         newModel, computerRequest
     
