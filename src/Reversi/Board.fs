@@ -24,7 +24,6 @@ type GameState =
     | OngoingSkipMove
     | Finished
 
-
 type Board private (size: int, nextToMove: Colour, squares: Square []) =
 
     static let directions =

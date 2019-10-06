@@ -21,7 +21,7 @@ let possibleMoveCellProps = toCellProps "#00d000"
 let possibleMoveHoverCellProps = toCellProps "#00f000"
 let wouldFlipCellProps = toCellProps "#00d000"
 
-let showSquare dispatch (location, square, view) =
+let showSquare dispatch humanPlaying (location, square, view) =
     let cellProps : IHTMLProp list =
         match view with
         | Plain -> plainCellProps
@@ -40,13 +40,15 @@ let showSquare dispatch (location, square, view) =
     let onHover = OnMouseOver (fun _ -> Hover location |> dispatch) :> IHTMLProp
     let onClick = OnClick (fun _ -> Click location |> dispatch) :> IHTMLProp
 
-    td (onClick :: onHover :: cellProps) cellContent
+    let props = if humanPlaying then (onClick :: onHover :: cellProps) else cellProps
 
-let showBoard dispatch boardView =
+    td props cellContent
+
+let showBoard dispatch humanPlaying boardView =
     let rows =
         boardView.SquareViews
         |> List.map (fun row -> 
-            tr [] (row |> List.map (showSquare dispatch)))
+            tr [] (row |> List.map (showSquare dispatch humanPlaying)))
     
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
@@ -59,6 +61,8 @@ let button txt onClick =
         [ str txt ]
 
 let view (model : Model) (dispatch : Msg -> unit) =
+    let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
+
     div []
         [ Navbar.navbar [ Navbar.Color IsPrimary ]
             [ Navbar.Item.div [ ]
@@ -66,7 +70,7 @@ let view (model : Model) (dispatch : Msg -> unit) =
                     [ str "Fable Reversi" ] ] ]
 
           Container.container []
-              [ yield showBoard dispatch model.BoardView
+              [ yield showBoard dispatch humanPlaying model.BoardView
                 yield p [] [ sprintf "Next to play: %O" model.Board.NextToMove |> str ]
                 yield p [] [ sprintf "State: %O" (model.Board.GameState()) |> str ]
                 

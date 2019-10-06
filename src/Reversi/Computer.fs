@@ -1,18 +1,14 @@
-module FableReversi.Reversi.Computer
+module FableReversi.Reversi.Computer.Runner
 
 open FableReversi.Reversi
 
-type ComputerAction =
-    | ComputerSkipMove
-    | ComputerPlayMove of PossibleMove
-
 type ComputerPlayer =
     {
-        Play: Board -> PossibleMove
+        ChooseMove: Board -> PossibleMove
     }
 
 let Play player (board: Board) =
     match board.GameState() with
     | Finished -> failwith "Game finished"
-    | OngoingSkipMove -> ComputerSkipMove
-    | Ongoing -> player.Play board |> ComputerPlayMove
+    | OngoingSkipMove -> SkipMove
+    | Ongoing -> player.ChooseMove board |> PlayMove

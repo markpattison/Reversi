@@ -3,13 +3,16 @@ module FableReversi.State
 open Elmish
 
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer.Runner
 open Types
 
 let toBoardView (board: Board) =
     let possibleMoves = board.PossibleMoves() |> List.map (fun pm -> pm.MoveLocation)
     { SquareViews =
-        List.init board.Size (fun x ->
-            List.init board.Size (fun y ->
+        List.init board.Size (fun i ->
+            let y = board.Size - 1 - i
+            List.init board.Size (fun x ->
+                printfn "loc %i %i" x y
                 let location = Location (x, y)
                 let view =
                     if List.contains location possibleMoves then
@@ -21,8 +24,9 @@ let toBoardView (board: Board) =
 let toBoardViewPossibleMoveHover (board: Board) possibleMove =
     let possibleMoves = board.PossibleMoves() |> List.map (fun pm -> pm.MoveLocation)
     { SquareViews =
-        List.init board.Size (fun x ->
-            List.init board.Size (fun y ->
+        List.init board.Size (fun i ->
+            let y = board.Size - 1 - i
+            List.init board.Size (fun x ->
                 let location = Location (x, y)
                 let view =
                     if location = possibleMove.MoveLocation then
@@ -42,12 +46,20 @@ let init () =
         { Board = startingBoard
           BoardView = toBoardView startingBoard
           PossibleMoves = startingBoard.PossibleMoves()
-          GameState = startingBoard.GameState() }
+          GameState = startingBoard.GameState()
+          PlayerBlack = Human
+          PlayerWhite = Computer Computer.Random.player }
     
     initialModel, Cmd.none
 
 let updateBoard model board =
     { model with Board = board; PossibleMoves = board.PossibleMoves(); BoardView = toBoardView board; GameState = board.GameState() }
+
+let requestComputerMove (board, player: ComputerPlayer) =
+    async {
+        do! Async.Sleep 1000
+        return Play player board
+    }
 
 let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
     match msg with
@@ -65,17 +77,21 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
 
-    | GameAction (PlayMove possibleMove) ->
-        if List.contains possibleMove model.PossibleMoves then
-            updateBoard model possibleMove.Result, Cmd.none
-        else
-            model, Cmd.none
+    | GameAction action ->
+        let newModel =
+            match action with
+            | PlayMove possibleMove when List.exists (fun pm -> pm.MoveLocation = possibleMove.MoveLocation) model.PossibleMoves -> updateBoard model possibleMove.Result
+            | SkipMove when model.GameState = OngoingSkipMove -> updateBoard model (model.Board.SkipMove())
+            | _ -> model
+        
+        let computerRequest =
+            match newModel.GameState, newModel.CurrentPlayer with
+            | _, Human -> Cmd.none
+            | Finished, _ -> Cmd.none
+            | _, Computer player ->
+                Cmd.OfAsync.perform requestComputerMove (newModel.Board, player) (fun gameAction -> GameAction gameAction)
 
-    | GameAction SkipMove ->
-        if model.GameState = OngoingSkipMove then
-            updateBoard model (model.Board.SkipMove()), Cmd.none
-        else
-            model, Cmd.none
+        newModel, computerRequest
     
     | RestartGame ->
         if model.GameState = Finished then
