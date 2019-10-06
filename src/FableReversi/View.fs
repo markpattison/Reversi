@@ -74,5 +74,5 @@ let view (model : Model) (dispatch : Msg -> unit) =
                 yield p [] [ sprintf "Next to play: %O" model.Board.NextToMove |> str ]
                 yield p [] [ sprintf "State: %O" (model.Board.GameState()) |> str ]
                 
-                if model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+                if humanPlaying && model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
                 if model.GameState = Finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
