@@ -18,7 +18,7 @@ var CONFIG = {
     indexHtmlTemplate: './src/FableReversi/index.html',
     fsharpEntry: './src/FableReversi/FableReversi.fsproj',
     cssEntry: './src/FableReversi/style.scss',
-    outputDir: './deploy',
+    outputDir: './src/FableReversi/deploy',
     assetsDir: './src/FableReversi/public',
     devServerPort: 8080,
     // When using webpack-dev-server, you may need to redirect some calls
