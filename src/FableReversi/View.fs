@@ -60,8 +60,19 @@ let button txt onClick =
           Button.OnClick onClick ]
         [ str txt ]
 
-let view (model : Model) (dispatch : Msg -> unit) =
+let content (model : Model) (dispatch : Msg -> unit) =
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
+
+    Columns.columns []
+      [ Column.column [ Column.Width (Screen.All, Column.Is9) ]
+          [ yield showBoard dispatch humanPlaying model.BoardView
+            yield p [] [ sprintf "Next to play: %O" model.Board.NextToMove |> str ]
+            yield p [] [ sprintf "State: %O" (model.Board.GameState()) |> str ] ]
+        Column.column []
+            [ if humanPlaying && model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+              if model.GameState = Finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
+
+let view (model : Model) (dispatch : Msg -> unit) =
 
     div []
         [ Navbar.navbar [ Navbar.Color IsPrimary ]
@@ -69,10 +80,6 @@ let view (model : Model) (dispatch : Msg -> unit) =
                 [ Heading.h2 [ ]
                     [ str "Fable Reversi" ] ] ]
 
-          Container.container []
-              [ yield showBoard dispatch humanPlaying model.BoardView
-                yield p [] [ sprintf "Next to play: %O" model.Board.NextToMove |> str ]
-                yield p [] [ sprintf "State: %O" (model.Board.GameState()) |> str ]
-                
-                if humanPlaying && model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
-                if model.GameState = Finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
+          Section.section []
+                [ Container.container []
+                    [ content model dispatch ] ] ]
