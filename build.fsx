@@ -70,6 +70,7 @@ Target.create "InstallClient" (fun _ ->
 )
 
 Target.create "Build" (fun _ ->
+    runTool "dir" @"./src/FableReversi/" __SOURCE_DIRECTORY__
     runTool npxTool "webpack-cli -p" __SOURCE_DIRECTORY__
 )
 
