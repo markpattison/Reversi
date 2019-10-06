@@ -66,7 +66,10 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         | None -> model, Cmd.none
     
     | PlayMove possibleMove ->
-        updateBoard model possibleMove.Result, Cmd.none
+        if List.contains possibleMove model.PossibleMoves then
+            updateBoard model possibleMove.Result, Cmd.none
+        else
+            model, Cmd.none
 
     | SkipMove ->
         if model.GameState = OngoingSkipMove then
