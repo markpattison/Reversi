@@ -46,7 +46,7 @@ let init () =
           BoardView = toBoardView startingBoard
           PossibleMoves = startingBoard.PossibleMoves()
           GameState = startingBoard.GameState()
-          PlayerBlack = Computer Computer.Random.player
+          PlayerBlack = Human
           PlayerWhite = Computer Computer.Random.player }
     
     initialModel, Cmd.ofMsg RequestComputerMoveIfNeeded
