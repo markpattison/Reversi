@@ -701,7 +701,7 @@ NUGET
 
 GROUP Client
 STORAGE: NONE
-RESTRICTION: == netcoreapp2.2
+RESTRICTION: == netcoreapp3.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Fable.Browser.Blob (1.1)
