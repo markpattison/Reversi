@@ -701,7 +701,7 @@ NUGET
 
 GROUP Client
 STORAGE: NONE
-RESTRICTION: == netcoreapp3.0
+RESTRICTION: == netcoreapp2.2
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Fable.Browser.Blob (1.1)
@@ -774,7 +774,7 @@ NUGET
       Fable.Parsimmon (>= 4.0)
       FSharp.Core (>= 4.6.2)
     FSharp.Core (4.7)
-    Fulma (2.1.1)
+    Fulma (2.2)
       Fable.Core (>= 3.0)
       Fable.React (>= 5.1)
     Thoth.Json (3.3)
