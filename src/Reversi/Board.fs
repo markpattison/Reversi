@@ -19,51 +19,88 @@ type Location =
     | Location of int * int
     static member (+) ((Location (x1, y1)), (Location (x2, y2))) = Location (x1 + x2, y1 + y2)
 
+type Board =
+    {
+        Squares: Square[]
+        NextToMove: Colour
+    }
+
+type PossibleMove =
+    {
+        MoveLocation: Location
+        Flips: Location list
+        Result: Board
+    }
+
+type OngoingGame =
+    {
+        Board: Board
+        PossibleMoves: PossibleMove list
+    }
+
 type GameState =
-    | Ongoing
-    | OngoingSkipMove
-    | Finished
+    | Ongoing of OngoingGame
+    | OngoingSkipMove of Board
+    | Finished of Board
 
-type Board private (size: int, nextToMove: Colour, squares: Square []) =
+type GameInfo =
+    {
+        State: GameState
+        NumBlack: int
+        NumWhite: int
+    }
+    member this.Board =
+        match this.State with
+        | Ongoing og -> og.Board
+        | OngoingSkipMove b -> b
+        | Finished b -> b
+    member this.NextToMove =
+        match this.State with
+        | Ongoing og -> og.Board.NextToMove
+        | OngoingSkipMove b -> b.NextToMove
+        | Finished b -> b.NextToMove
 
-    static let directions =
+module Board =
+
+    let directions =
         [ (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) ]
         |> List.map Location
     
-    public new() =
+    let startingBoard =
         let squares = Array.create 64 Empty
         squares.[27] <- Piece Black
         squares.[28] <- Piece White
         squares.[35] <- Piece White
         squares.[36] <- Piece Black
-        Board(8, Black, squares)
-    
-    member private __.indexOf (Location (x, y)) = x + y * size
 
-    member __.Size = size
-    member __.NextToMove = nextToMove
-    member this.Square location = squares.[this.indexOf location]
-    member __.CopySquares() = Array.copy squares
+        { Squares = squares; NextToMove = Black }
 
-    member __.NumPieces colour =
-        let mutable count = 0
+    let private countPieces board =
+        let mutable black = 0
+        let mutable white = 0
 
-        squares |> Array.iter (fun sq ->
-            if sq = Piece colour then count <- count + 1)
+        board.Squares |> Array.iter (fun sq ->
+            if sq = Piece Black then black <- black + 1
+            if sq = Piece White then white <- white + 1)
         
-        count
+        (black, white)
     
-    member private __.isOnBoard (Location (x, y)) =
-        x >= 0 && x < size && y >= 0 && y < size
+    let private indexOf (Location (x, y)) =
+        x + y * 8
     
-    member private this.wouldFlip colour location direction =
+    let squareAt board location = board.Squares.[indexOf location]
+
+    let private isOnBoard (Location (x, y)) =
+        x >= 0 && x < 8 && y >= 0 && y < 8
+    
+    let private wouldFlip board colour location direction =
         let mutable location' = location + direction
         let mutable foundEmpty = false
         let mutable foundColour = false
 
         let flips =
-            [ while (this.isOnBoard location' && not foundEmpty && not foundColour) do
-                match this.Square location' with
+            [ while (isOnBoard location' && not foundEmpty && not foundColour) do
+                match squareAt board location' with
                 | Empty -> foundEmpty <- true
                 | Piece c when c = colour -> foundColour <- true
                 | _ -> yield location'
@@ -72,72 +109,65 @@ type Board private (size: int, nextToMove: Colour, squares: Square []) =
         
         if foundColour then flips else []
 
-    member private this.isPossibleMove colour location =
-        if this.Square location = Empty then
-            let flips = directions |> List.collect (this.wouldFlip colour location)
+    let private isPossibleMove board colour location =
+        if squareAt board location = Empty then
+            let flips = directions |> List.collect (wouldFlip board colour location)
             if flips.IsEmpty then None else Some flips
         else
             None
    
-    member private this.moveResult moveLocation flips =
-        let newSquares = Array.copy squares
-        let opposite = nextToMove.opposite
+    let private moveResult board moveLocation flips =
+        let newSquares = Array.copy board.Squares
+        let opposite = board.NextToMove.opposite
 
         flips |> List.iter (fun flip ->
-            match this.Square flip with
+            match squareAt board flip with
             | Empty -> failwith "Tried to flip empty square"
-            | Piece c when c = opposite -> newSquares.[this.indexOf flip] <- Piece nextToMove
+            | Piece c when c = opposite -> newSquares.[indexOf flip] <- Piece board.NextToMove
             | _ -> failwith "Tried to flip same colour")
 
-        newSquares.[this.indexOf moveLocation] <- Piece nextToMove
+        newSquares.[indexOf moveLocation] <- Piece board.NextToMove
 
-        Board(size, opposite, newSquares)
-    
-    member this.SkipMove() =
-        if this.GameState() = OngoingSkipMove then
-            Board(size, nextToMove.opposite, squares)
-        else
-            failwith "Cannot skip move"        
+        { Squares = newSquares; NextToMove = opposite }
+   
 
-    member this.PossibleMoves() =
+    let private getPossibleMoves board =
         [
-            for x in 0..(size - 1) do
-                for y in 0..(size - 1) do
+            for x in 0..7 do
+                for y in 0..7 do
                     let moveLocation = Location (x, y)
-                    match this.isPossibleMove nextToMove moveLocation with
+                    match isPossibleMove board board.NextToMove moveLocation with
                     | Some flips ->
-                        yield { MoveLocation = moveLocation; Flips = flips; Result = this.moveResult moveLocation flips }
+                        yield { MoveLocation = moveLocation; Flips = flips; Result = moveResult board moveLocation flips }
                     | None -> ()
         ]
      
-    member private this.AnyPossibleMovesByOpposite() =
-        let opposite = nextToMove.opposite
+    let private anyPossibleMovesByOpposite board =
+        let opposite = board.NextToMove.opposite
 
         let movesByOpposite =
             [
-                for x in 0..(size - 1) do
-                    for y in 0..(size - 1) do
+                for x in 0..7 do
+                    for y in 0..7 do
                         let moveLocation = Location (x, y)
-                        match this.isPossibleMove opposite moveLocation with
+                        match isPossibleMove board opposite moveLocation with
                         | Some flips -> yield flips
                         | None -> ()
             ]
         
         not (List.isEmpty movesByOpposite)
+    
+    let toGameInfo board =
+        let (blackCount, whiteCount) = countPieces board
+        let possibleMoves = getPossibleMoves board
 
-    member this.GameState() =
-        match this.PossibleMoves() with
-        | [] ->
-            if this.AnyPossibleMovesByOpposite() then OngoingSkipMove else Finished
-        | _ -> Ongoing
-
-and PossibleMove =
-    {
-        MoveLocation: Location
-        Flips: Location list
-        Result: Board
-    }
-
-and GameAction =
-    | SkipMove
-    | PlayMove of PossibleMove
+        let state =
+            match possibleMoves with
+            | [] -> if anyPossibleMovesByOpposite board then OngoingSkipMove board else Finished board
+            | _ -> Ongoing { Board = board; PossibleMoves = possibleMoves }
+        
+        {
+            State = state
+            NumBlack = blackCount
+            NumWhite = whiteCount
+        }

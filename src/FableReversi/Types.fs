@@ -1,7 +1,7 @@
 module FableReversi.Types
 
 open FableReversi.Reversi
-open FableReversi.Reversi.Computer
+open FableReversi.Reversi.Runner
 
 type SquareView =
     | PossibleMove
@@ -17,14 +17,12 @@ type Player =
     | Computer of ComputerPlayer
 
 type Model =
-    { Board: Board
-      PossibleMoves: PossibleMove list
+    { GameInfo: GameInfo
       BoardView: BoardView
-      GameState: GameState
       PlayerBlack: Player
       PlayerWhite: Player }
     member this.CurrentPlayer =
-        match this.Board.NextToMove with
+        match this.GameInfo.Board.NextToMove with
         | Black -> this.PlayerBlack
         | White -> this.PlayerWhite
 

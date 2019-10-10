@@ -7,6 +7,7 @@ open Fulma
 
 open Types
 open FableReversi.Reversi
+open FableReversi.Reversi.Runner
 
 let toPieceIcon colour = [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; Fa.Props [ Style [ Color colour ] ] ] [] ]
 let toCellProps colour : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor colour ] ]
@@ -60,11 +61,21 @@ let showBoard dispatch humanPlaying boardView =
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
-
 let content (model : Model) (dispatch : Msg -> unit) =
+    let gameInfo = model.GameInfo
+    
+    let blackToPlay, whiteToPlay, finished =
+        match gameInfo.NextToMove, gameInfo.State with
+        | _, Finished _ -> false, false, true
+        | Black, _ -> true, false, false
+        | White, _ -> false, true, false
+
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
-    let blackToPlay = model.Board.NextToMove = Black && model.GameState <> Finished
-    let whiteToPlay = model.Board.NextToMove = White && model.GameState <> Finished
+
+    let showSkipButton =
+        match humanPlaying, gameInfo.State with
+        | true, OngoingSkipMove _ -> true
+        | _ -> false
 
     Columns.columns []
       [ Column.column [ Column.Width (Screen.All, Column.Is9) ]
@@ -72,15 +83,15 @@ let content (model : Model) (dispatch : Msg -> unit) =
         Column.column []
             [ yield
                 p []
-                    [ yield sprintf "Black: %i " (model.Board.NumPieces Black) |> str
+                    [ yield sprintf "Black: %i " (gameInfo.NumBlack) |> str
                       if blackToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               yield
                 p []
-                    [ yield sprintf "White: %i " (model.Board.NumPieces White) |> str
+                    [ yield sprintf "White: %i " (gameInfo.NumWhite) |> str
                       if whiteToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               yield br []
-              if humanPlaying && model.GameState = OngoingSkipMove then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
-              if model.GameState = Finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
+              if showSkipButton then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+              if finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
 
 let view (model : Model) (dispatch : Msg -> unit) =
 
