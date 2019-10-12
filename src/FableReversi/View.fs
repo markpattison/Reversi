@@ -30,7 +30,8 @@ let button txt onClick =
         [ str txt ]
 
 let players =
-    (HumanChoice, "Human") :: List.map (fun (cp, name) -> (ComputerChoice cp, name)) (Computer.Players.all)
+    let computers = List.map (fun (cp, name) -> (ComputerChoice cp, sprintf "Computer: %s" name)) (Computer.Players.all)
+    (HumanChoice, "Human") :: computers
 
 let dropdown value key dispatch =
     let onChange (ev: Event) =

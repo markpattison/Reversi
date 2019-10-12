@@ -6,8 +6,8 @@ type ComputerPlayerChoice =
 
 let all =
     [
-        Random, "Computer random"
-        Greedy, "Computer greedy"
+        Random, "Random"
+        Greedy, "Greedy"
     ]
 
 let Create choice =
