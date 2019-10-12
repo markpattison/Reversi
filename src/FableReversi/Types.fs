@@ -53,6 +53,7 @@ type GameMsg =
     | GameAction of GameAction
     | RequestComputerMoveIfNeeded
     | Restart
+    | ChangePlayers
 
 type Msg =
     | LobbyMsg of LobbyMsg

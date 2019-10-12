@@ -117,6 +117,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
         model, computerRequest
 
     | Restart -> model, Cmd.none // handled at Model level
+    | ChangePlayers -> model, Cmd.none // handled at Model level
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg, model.OuterState with
@@ -132,7 +133,19 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
     
-    | GameMsg Restart, Playing _ -> init()
+    | GameMsg Restart, Playing gameModel ->
+        let startingBoard = Board.startingBoard
+        let gameInfo = Board.toGameInfo startingBoard
+
+        let initialModel =
+            { GameInfo = gameInfo
+              BoardView = toBoardView gameInfo
+              PlayerBlack = gameModel.PlayerBlack
+              PlayerWhite = gameModel.PlayerWhite }
+        
+        { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
+
+    | GameMsg ChangePlayers, Playing _ -> init()
 
     | LobbyMsg lobbyMsg, Lobby lobbyOptions ->
         let updatedLobbyOptions, cmd = updateLobby lobbyMsg lobbyOptions

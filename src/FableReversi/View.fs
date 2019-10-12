@@ -125,9 +125,14 @@ let gameContent model dispatch =
                 p []
                     [ yield sprintf "White: %i " (gameInfo.NumWhite) |> str
                       if whiteToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              yield br []
-              if showSkipButton then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
-              if finished then yield button "Restart game" (fun _ -> dispatch Restart) ] ]
+              if showSkipButton then
+                  yield br []
+                  yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+              if finished then
+                  yield br []
+                  yield p [] [ button "Restart game" (fun _ -> dispatch Restart) ]
+                  yield br[]
+                  yield p [] [ button "Change players" (fun _ -> dispatch ChangePlayers) ] ] ]
 
 let content model dispatch =
     match model.OuterState with
