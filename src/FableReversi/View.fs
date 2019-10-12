@@ -1,5 +1,6 @@
 module FableReversi.View
 
+open Browser.Types
 open Fable.FontAwesome
 open Fable.React
 open Fable.React.Props
@@ -24,10 +25,45 @@ let wouldFlipCellProps = toCellProps "#00d000"
 
 let button txt onClick =
     Button.button
-        [ Button.IsFullWidth
-          Button.Color IsPrimary
+        [ Button.Color IsPrimary
           Button.OnClick onClick ]
         [ str txt ]
+
+let players =
+    (HumanChoice, "Human") :: List.map (fun (cp, name) -> (ComputerChoice cp, name)) (Computer.Players.all)
+
+let dropdown value key dispatch =
+    let onChange (ev: Event) =
+        match List.tryFind (fun (_, name) -> name = ev.Value) players with
+        | Some (pc, _) -> dispatch pc
+        | None -> ()
+    
+    let dropDownItems =
+        players
+        |> List.map (fun (_, name) -> option [ Value name ] [ str name ])
+    
+    let currentValue =
+        match List.tryFind (fun (cp, _) -> cp = value) players with
+        | Some (_, name) -> name
+        | None -> ""
+    
+    Field.div []
+        [ Control.div []
+            [ Select.select
+                [ Select.Props [ OnChange onChange; Key key ] ]
+                [ select [ DefaultValue currentValue ] dropDownItems ] ] ]
+
+let lobbyContent lobbyOptions dispatch =
+    div []
+        [ p []
+            [ str "Black"
+              dropdown lobbyOptions.PlayerBlackChoice "BlackDropdown" (ChangeBlackPlayer >> dispatch) ]
+          br []
+          p []
+            [ str "White"
+              dropdown lobbyOptions.PlayerWhiteChoice "WhiteDropdown" (ChangeWhitePlayer >> dispatch) ]
+          br []
+          button "Start game" (fun _ -> dispatch Start)]
 
 let showSquare dispatch humanPlaying (location, square, view) =
     let cellProps : IHTMLProp list =
@@ -61,7 +97,7 @@ let showBoard dispatch humanPlaying boardView =
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
-let content (model : Model) (dispatch : Msg -> unit) =
+let gameContent model dispatch =
     let gameInfo = model.GameInfo
     
     let blackToPlay, whiteToPlay, finished =
@@ -91,7 +127,12 @@ let content (model : Model) (dispatch : Msg -> unit) =
                       if whiteToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               yield br []
               if showSkipButton then yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
-              if finished then yield button "Restart game" (fun _ -> dispatch RestartGame) ] ]
+              if finished then yield button "Restart game" (fun _ -> dispatch Restart) ] ]
+
+let content model dispatch =
+    match model.OuterState with
+    | Lobby lobbyOptions -> lobbyContent lobbyOptions (LobbyMsg >> dispatch)
+    | Playing gameModel -> gameContent gameModel (GameMsg >> dispatch)
 
 let view (model : Model) (dispatch : Msg -> unit) =
 

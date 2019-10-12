@@ -3,7 +3,7 @@ module FableReversi.Reversi.Computer.Random
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
-let player =
+let create() =
     let random = new System.Random()
     {
         ChooseMove = fun ongoingGame ->

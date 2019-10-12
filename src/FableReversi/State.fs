@@ -48,18 +48,19 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
                     else
                         Plain
                 (location, Board.squareAt gameInfo.Board location, view))) }
-    
-let init () =
-    let startingBoard = Board.startingBoard
-    let gameInfo = Board.toGameInfo startingBoard
 
-    let initialModel =
-        { GameInfo = gameInfo
-          BoardView = toBoardView gameInfo
-          PlayerBlack = Human
-          PlayerWhite = Computer Computer.Random.player }
-    
-    initialModel, Cmd.ofMsg RequestComputerMoveIfNeeded
+let createPlayer playerChoice =
+    match playerChoice with
+    | HumanChoice -> Human
+    | ComputerChoice c -> Computer (Computer.Players.Create c)
+
+let init () =
+    let initialOuterModel =
+        { OuterState =
+            Lobby
+                { PlayerBlackChoice = HumanChoice
+                  PlayerWhiteChoice = HumanChoice } }
+    initialOuterModel, Cmd.none
 
 let updateBoard model board =
     let gameInfo = Board.toGameInfo board
@@ -67,11 +68,17 @@ let updateBoard model board =
 
 let requestComputerMove (player: ComputerPlayer, board) =
     async {
-        do! Async.Sleep 1000
+        do! Async.Sleep 100
         return player.ChooseMove board
     }
 
-let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
+let updateLobby (msg: LobbyMsg) (options: LobbyOptions) : LobbyOptions * Cmd<LobbyMsg> =
+    match msg with
+    | ChangeBlackPlayer p -> { options with PlayerBlackChoice = p }, Cmd.none
+    | ChangeWhitePlayer p -> { options with PlayerWhiteChoice = p }, Cmd.none
+    | Start -> options, Cmd.none // handled at Model level
+
+let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
     let possibleMoves = getPossibleMoves model.GameInfo
 
     match msg with
@@ -109,7 +116,31 @@ let update (msg : Msg) (model : Model) : Model * Cmd<Msg> =
         
         model, computerRequest
 
-    | RestartGame ->
-        match model.GameInfo.State with
-        | Finished _ -> init()
-        | _ -> model, Cmd.none
+    | Restart -> model, Cmd.none // handled at Model level
+
+let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
+    match msg, model.OuterState with
+    | LobbyMsg Start, Lobby { PlayerBlackChoice = blackPlayer; PlayerWhiteChoice = whitePlayer } -> 
+        let startingBoard = Board.startingBoard
+        let gameInfo = Board.toGameInfo startingBoard
+
+        let initialModel =
+            { GameInfo = gameInfo
+              BoardView = toBoardView gameInfo
+              PlayerBlack = createPlayer blackPlayer
+              PlayerWhite = createPlayer whitePlayer }
+        
+        { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
+    
+    | GameMsg Restart, Playing _ -> init()
+
+    | LobbyMsg lobbyMsg, Lobby lobbyOptions ->
+        let updatedLobbyOptions, cmd = updateLobby lobbyMsg lobbyOptions
+        { model with OuterState = Lobby updatedLobbyOptions }, Cmd.map LobbyMsg cmd
+    
+    | GameMsg gameMsg, Playing gameModel ->
+        let updatedGameModel, cmd = updateGame gameMsg gameModel
+        { model with OuterState = Playing updatedGameModel }, Cmd.map GameMsg cmd
+    
+    | LobbyMsg _, Playing _ -> model, Cmd.none
+    | GameMsg _, Lobby _ -> model, Cmd.none
