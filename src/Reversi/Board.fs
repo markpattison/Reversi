@@ -38,10 +38,20 @@ type OngoingGame =
         PossibleMoves: PossibleMove list
     }
 
+type GameResult =
+    | Win of Colour
+    | Tie
+
+type FinishedGame =
+    {
+        Board: Board
+        Result: GameResult
+    }
+
 type GameState =
     | Ongoing of OngoingGame
     | OngoingSkipMove of Board
-    | Finished of Board
+    | Finished of FinishedGame
 
 type GameInfo =
     {
@@ -53,12 +63,12 @@ type GameInfo =
         match this.State with
         | Ongoing og -> og.Board
         | OngoingSkipMove b -> b
-        | Finished b -> b
+        | Finished fg -> fg.Board
     member this.NextToMove =
         match this.State with
         | Ongoing og -> og.Board.NextToMove
         | OngoingSkipMove b -> b.NextToMove
-        | Finished b -> b.NextToMove
+        | Finished fg -> fg.Board.NextToMove
 
 module Board =
 
@@ -163,7 +173,12 @@ module Board =
 
         let state =
             match possibleMoves with
-            | [] -> if anyPossibleMovesByOpposite board then OngoingSkipMove board else Finished board
+            | [] ->
+                if anyPossibleMovesByOpposite board then
+                    OngoingSkipMove board
+                else
+                    let result = if blackCount > whiteCount then Win Black elif whiteCount > blackCount then Win White else Tie
+                    Finished { Board = board; Result = result }
             | _ -> Ongoing { Board = board; PossibleMoves = possibleMoves }
         
         {

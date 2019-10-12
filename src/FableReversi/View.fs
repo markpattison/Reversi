@@ -98,14 +98,20 @@ let showBoard dispatch humanPlaying boardView =
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
+let summary result =
+    match result with
+    | Win Black -> "Black wins!"
+    | Win White -> "White wins!"
+    | Tie -> "Game tied!"
+
 let gameContent model dispatch =
     let gameInfo = model.GameInfo
     
-    let blackToPlay, whiteToPlay, finished =
+    let blackToPlay, whiteToPlay, result =
         match gameInfo.NextToMove, gameInfo.State with
-        | _, Finished _ -> false, false, true
-        | Black, _ -> true, false, false
-        | White, _ -> false, true, false
+        | _, Finished fg -> false, false, Some fg.Result
+        | Black, _ -> true, false, None
+        | White, _ -> false, true, None
 
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
 
@@ -129,7 +135,11 @@ let gameContent model dispatch =
               if showSkipButton then
                   yield br []
                   yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
-              if finished then
+              match result with
+              | None -> ()
+              | Some r ->
+                  yield br []
+                  yield p [] [ r |> summary |> str ]
                   yield br []
                   yield p [] [ button "Restart game" (fun _ -> dispatch Restart) ]
                   yield br[]
