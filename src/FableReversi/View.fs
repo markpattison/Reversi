@@ -124,26 +124,24 @@ let gameContent model dispatch =
       [ Column.column [ Column.Width (Screen.All, Column.Is9) ]
           [ showBoard dispatch humanPlaying model.BoardView ]
         Column.column []
-            [ yield
-                p []
-                    [ yield sprintf "Black: %i " (gameInfo.NumBlack) |> str
-                      if blackToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              yield
-                p []
-                    [ yield sprintf "White: %i " (gameInfo.NumWhite) |> str
-                      if whiteToPlay then yield Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
+            [ p []
+                    [ sprintf "Black: %i " (gameInfo.NumBlack) |> str
+                      if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
+              p []
+                    [ sprintf "White: %i " (gameInfo.NumWhite) |> str
+                      if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               if showSkipButton then
-                  yield br []
-                  yield button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+                  br []
+                  button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
               match result with
               | None -> ()
               | Some r ->
-                  yield br []
-                  yield p [] [ r |> summary |> str ]
-                  yield br []
-                  yield p [] [ button "Restart game" (fun _ -> dispatch Restart) ]
-                  yield br[]
-                  yield p [] [ button "Change players" (fun _ -> dispatch ChangePlayers) ] ] ]
+                  br []
+                  p [] [ r |> summary |> str ]
+                  br []
+                  p [] [ button "Restart game" (fun _ -> dispatch Restart) ]
+                  br[]
+                  p [] [ button "Change players" (fun _ -> dispatch ChangePlayers) ] ] ]
 
 let content model dispatch =
     match model.OuterState with
