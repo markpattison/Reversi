@@ -140,8 +140,8 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let initialModel =
             { GameInfo = gameInfo
               BoardView = toBoardView gameInfo
-              PlayerBlack = gameModel.PlayerBlack
-              PlayerWhite = gameModel.PlayerWhite }
+              PlayerBlack = gameModel.PlayerWhite
+              PlayerWhite = gameModel.PlayerBlack }
         
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
