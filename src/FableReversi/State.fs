@@ -51,8 +51,8 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
 
 let createPlayer playerChoice =
     match playerChoice with
-    | HumanChoice -> Human
-    | ComputerChoice c -> Computer (Computer.Players.Create c)
+    | HumanChoice -> "Human", Human
+    | ComputerChoice c -> sprintf "Computer %A" c, Computer (Computer.Players.Create c)
 
 let init () =
     let initialOuterModel =

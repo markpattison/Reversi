@@ -98,6 +98,11 @@ let showBoard dispatch humanPlaying boardView =
     Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
+let playerName player =
+    match player with
+    | Human -> "Human"
+    | Computer c -> sprintf "Computer %s" (c.ToString())
+
 let summary result =
     match result with
     | Win Black -> "Black wins!"
@@ -125,10 +130,10 @@ let gameContent model dispatch =
           [ showBoard dispatch humanPlaying model.BoardView ]
         Column.column []
             [ p []
-                    [ sprintf "Black: %i " (gameInfo.NumBlack) |> str
+                    [ sprintf "Black (%s): %i " (fst model.PlayerBlack) (gameInfo.NumBlack) |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               p []
-                    [ sprintf "White: %i " (gameInfo.NumWhite) |> str
+                    [ sprintf "White (%s): %i " (fst model.PlayerWhite) (gameInfo.NumWhite) |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               if showSkipButton then
                   br []

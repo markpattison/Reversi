@@ -24,12 +24,12 @@ type PlayerChoice =
 type GameModel =
     { GameInfo: GameInfo
       BoardView: BoardView
-      PlayerBlack: Player
-      PlayerWhite: Player }
+      PlayerBlack: string * Player
+      PlayerWhite: string * Player }
     member this.CurrentPlayer =
         match this.GameInfo.Board.NextToMove with
-        | Black -> this.PlayerBlack
-        | White -> this.PlayerWhite
+        | Black -> this.PlayerBlack |> snd
+        | White -> this.PlayerWhite |> snd
 
 type LobbyOptions =
     { PlayerBlackChoice: PlayerChoice
