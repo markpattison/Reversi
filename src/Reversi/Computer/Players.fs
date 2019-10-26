@@ -4,12 +4,14 @@ type ComputerPlayerChoice =
     | Random
     | Greedy
     | FewestReplies
+    | BasicHeuristic
 
 let all =
     [
         Random, "Random"
         Greedy, "Greedy"
         FewestReplies, "FewestReplies"
+        BasicHeuristic, "BasicHeuristic"
     ]
 
 let Create choice =
@@ -17,3 +19,4 @@ let Create choice =
     | Random -> Random.create()
     | Greedy -> Greedy.create()
     | FewestReplies -> FewestReplies.create()
+    | BasicHeuristic -> Heuristics.Basic.create()
