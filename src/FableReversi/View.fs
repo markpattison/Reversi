@@ -113,7 +113,7 @@ let gameContent model dispatch =
     let gameInfo = model.GameInfo
     
     let blackToPlay, whiteToPlay, result =
-        match gameInfo.NextToMove, gameInfo.State with
+        match gameInfo.Board.NextToMove, gameInfo.State with
         | _, Finished fg -> false, false, Some fg.Result
         | Black, _ -> true, false, None
         | White, _ -> false, true, None
@@ -130,10 +130,10 @@ let gameContent model dispatch =
           [ showBoard dispatch humanPlaying model.BoardView ]
         Column.column []
             [ p []
-                    [ sprintf "Black (%s): %i " (fst model.PlayerBlack) (gameInfo.NumBlack) |> str
+                    [ sprintf "Black (%s): %i " (fst model.PlayerBlack) (gameInfo.Board.NumBlack) |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               p []
-                    [ sprintf "White (%s): %i " (fst model.PlayerWhite) (gameInfo.NumWhite) |> str
+                    [ sprintf "White (%s): %i " (fst model.PlayerWhite) (gameInfo.Board.NumWhite) |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               if showSkipButton then
                   br []

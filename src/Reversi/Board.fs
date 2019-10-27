@@ -23,6 +23,8 @@ type Board =
     {
         Squares: Square[]
         NextToMove: Colour
+        NumBlack: int
+        NumWhite: int
     }
 
 type PossibleMove =
@@ -56,26 +58,38 @@ type GameState =
 type GameInfo =
     {
         State: GameState
-        NumBlack: int
-        NumWhite: int
     }
     member this.Board =
         match this.State with
         | Ongoing og -> og.Board
         | OngoingSkipMove b -> b
         | Finished fg -> fg.Board
-    member this.NextToMove =
-        match this.State with
-        | Ongoing og -> og.Board.NextToMove
-        | OngoingSkipMove b -> b.NextToMove
-        | Finished fg -> fg.Board.NextToMove
 
 module Board =
 
-    let directions =
+    let private directions =
         [ (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) ]
         |> List.map Location
-    
+
+    let private countPieces squares =
+        let mutable black = 0
+        let mutable white = 0
+
+        squares |> Array.iter (fun sq ->
+            if sq = Piece Black then black <- black + 1
+            if sq = Piece White then white <- white + 1)
+        
+        (black, white)    
+
+    let create squares nextToMove =
+        let numBlack, numWhite = countPieces squares
+        {
+            Squares = squares
+            NextToMove = nextToMove
+            NumBlack = numBlack
+            NumWhite = numWhite
+        }
+
     let startingBoard =
         let squares = Array.create 64 Empty
         squares.[27] <- Piece Black
@@ -83,17 +97,7 @@ module Board =
         squares.[35] <- Piece White
         squares.[36] <- Piece Black
 
-        { Squares = squares; NextToMove = Black }
-
-    let private countPieces board =
-        let mutable black = 0
-        let mutable white = 0
-
-        board.Squares |> Array.iter (fun sq ->
-            if sq = Piece Black then black <- black + 1
-            if sq = Piece White then white <- white + 1)
-        
-        (black, white)
+        create squares Black
     
     let private indexOf (Location (x, y)) =
         x + y * 8
@@ -138,8 +142,7 @@ module Board =
 
         newSquares.[indexOf moveLocation] <- Piece board.NextToMove
 
-        { Squares = newSquares; NextToMove = opposite }
-   
+        create newSquares opposite
 
     let private getPossibleMoves board =
         [
@@ -168,7 +171,6 @@ module Board =
         not (List.isEmpty movesByOpposite)
     
     let toGameInfo board =
-        let (blackCount, whiteCount) = countPieces board
         let possibleMoves = getPossibleMoves board
 
         let state =
@@ -177,12 +179,10 @@ module Board =
                 if anyPossibleMovesByOpposite board then
                     OngoingSkipMove board
                 else
-                    let result = if blackCount > whiteCount then Win Black elif whiteCount > blackCount then Win White else Tie
+                    let result = if board.NumBlack > board.NumWhite then Win Black elif board.NumWhite > board.NumBlack then Win White else Tie
                     Finished { Board = board; Result = result }
             | _ -> Ongoing { Board = board; PossibleMoves = possibleMoves }
         
         {
             State = state
-            NumBlack = blackCount
-            NumWhite = whiteCount
         }

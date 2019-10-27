@@ -16,6 +16,5 @@ type ComputerPlayer =
 module Actions =
     let skipMove gameInfo =
         match gameInfo.State with
-        | OngoingSkipMove _ ->
-            { Squares = gameInfo.Board.Squares; NextToMove = gameInfo.Board.NextToMove.opposite }
+        | OngoingSkipMove b -> { b with NextToMove = b.NextToMove.opposite }
         | _ -> failwith "Cannot skip move"
