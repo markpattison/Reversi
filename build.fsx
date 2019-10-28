@@ -16,6 +16,8 @@ Target.initEnvironment ()
 
 let clientPath = Path.getFullName "./src/FableReversi"
 let clientDeployPath = Path.combine clientPath "deploy"
+let domainPath = Path.getFullName "./src/Reversi"
+let testComputerPath = Path.getFullName "./src/TestComputer"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -94,6 +96,15 @@ Target.create "Run" (fun _ ->
     |> ignore
 )
 
+Target.create "Build domain model" (fun _ ->
+    runDotNet "build" domainPath)
+
+Target.create "Build computer tests" (fun _ ->
+    runDotNet "build" testComputerPath)
+
+Target.create "Test" (fun _ ->
+    runDotNet "test --logger:trx" testComputerPath)
+
 open Fake.Core.TargetOperators
 
 "Clean"
@@ -104,5 +115,11 @@ open Fake.Core.TargetOperators
 "Clean"
     ==> "InstallClient"
     ==> "Run"
+
+"Clean"
+    ==> "InstallClient"
+    ==> "Build domain model"
+    ==> "Build computer tests"
+    ==> "Test"
 
 Target.runOrDefaultWithArguments "Build"

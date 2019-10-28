@@ -8,10 +8,14 @@ group Client
     nuget Fable.Elmish.Debugger ~> 3
     nuget Fable.Elmish.HMR ~> 4
     nuget Fable.Elmish.React ~> 3
+    nuget Fable.FontAwesome.Free ~> 2
     nuget Fable.React ~> 5
     nuget Fable.Remoting.Client ~> 5
     nuget Fulma ~> 2
-    nuget Fable.FontAwesome.Free ~> 2
+
+    nuget Microsoft.NET.Test.Sdk
+    nuget NUnit
+    nuget NUnit3TestAdapter
 
 group Build
     source https://api.nuget.org/v3/index.json
