@@ -10,6 +10,7 @@
     <Compile Include="Computer\Greedy.fs" />
     <Compile Include="Computer\FewestReplies.fs" />
     <Compile Include="Computer\BasicHeuristic.fs" />
+    <Compile Include="Computer\Logged.fs" />
     <Compile Include="Computer\Players.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
