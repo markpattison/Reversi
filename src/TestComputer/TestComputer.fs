@@ -24,10 +24,10 @@ type TestComputer() =
     [<Test>]
     member _.DummyTest() =
         
-        let logger = (fun s -> printfn "%s" s)
+        let logger = Logger.Create()
 
         let playerBlack = Computer.Random.create()
-        let playerWhite = Computer.Heuristics.Basic.create 2
+        let playerWhite = Computer.Heuristics.Basic.createWithLog logger 2
 
         printfn "Black: Random, White: BasicHeuristic depth 2"
 
@@ -40,6 +40,8 @@ type TestComputer() =
                 | Win Black -> sprintf "Black wins %i-%i" result.Board.NumBlack result.Board.NumWhite
                 | Win White -> sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack
 
-            printfn "%s" summary
+            logger.Log -1 summary
+
+            logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
 
         Assert.True(true)
