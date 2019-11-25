@@ -24,17 +24,15 @@ type TestComputer() =
     [<Test>]
     member _.DummyTest() =
         
-        let playerBlack, blackLog = Computer.Random.create() |> Computer.Logged.create
-        let playerWhite, whiteLog = Computer.Heuristics.Basic.create 2 |> Computer.Logged.create
+        let logger = (fun s -> printfn "%s" s)
+
+        let playerBlack = Computer.Random.create()
+        let playerWhite = Computer.Heuristics.Basic.createWithLog logger 2
 
         printfn "Black: Random, White: BasicHeuristic depth 2"
 
-        for _ in 1..10 do
-            blackLog.NewGame()
-            whiteLog.NewGame()
+        for _ in 1..1 do
             let result = playGame playerBlack playerWhite Board.startingBoard
-
-            let times = sprintf "Black: %.2fs (max %.3fs), White: %.2fs (max %.3fs)" (blackLog.TotalTime()) (blackLog.MaxMoveTime()) (whiteLog.TotalTime()) (whiteLog.MaxMoveTime())
 
             let summary =
                 match result.Result with
@@ -42,6 +40,6 @@ type TestComputer() =
                 | Win Black -> sprintf "Black wins %i-%i" result.Board.NumBlack result.Board.NumWhite
                 | Win White -> sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack
 
-            printfn "%s (%s)" summary times
+            printfn "%s" summary
 
         Assert.True(true)
