@@ -117,7 +117,6 @@ open Fake.Core.TargetOperators
     ==> "Run"
 
 "Clean"
-    ==> "InstallClient"
     ==> "Build domain model"
     ==> "Build computer tests"
     ==> "Test"
