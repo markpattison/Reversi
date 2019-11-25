@@ -103,7 +103,7 @@ Target.create "Build computer tests" (fun _ ->
     runDotNet "build" testComputerPath)
 
 Target.create "Test" (fun _ ->
-    runDotNet "test --logger:trx" testComputerPath)
+    runDotNet "test --logger:trx --no-build" testComputerPath)
 
 open Fake.Core.TargetOperators
 
