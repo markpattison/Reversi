@@ -27,11 +27,11 @@ type TestComputer() =
         let logger = (fun s -> printfn "%s" s)
 
         let playerBlack = Computer.Random.create()
-        let playerWhite = Computer.Heuristics.Basic.createWithLog logger 2
+        let playerWhite = Computer.Heuristics.Basic.create 2
 
         printfn "Black: Random, White: BasicHeuristic depth 2"
 
-        for _ in 1..1 do
+        for _ in 1..10 do
             let result = playGame playerBlack playerWhite Board.startingBoard
 
             let summary =

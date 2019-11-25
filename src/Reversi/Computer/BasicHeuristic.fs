@@ -13,7 +13,9 @@ let heuristicFinished (finished: FinishedGame) =
     | Win Black -> 1000.0 + float (finished.Board.NumBlack - finished.Board.NumWhite)
     | Win White -> -1000.0 + float (finished.Board.NumBlack - finished.Board.NumWhite)
 
-let minimax depth board =
+let formatScores scores = sprintf "{%s}" (System.String.Join(",", scores |> List.map (fun s -> sprintf "%.1f" s)))
+
+let minimax log depth board =
     let mutable heuristicEvaluations = 0
 
     let rec minimaxCalc depth board =
@@ -23,22 +25,25 @@ let minimax depth board =
         | OngoingSkipMove _ -> minimaxCalc depth (Actions.skipMove gameInfo)
         | Finished f ->
             heuristicEvaluations <- heuristicEvaluations + 1
-            heuristicFinished f
+            let score = heuristicFinished f
+            kprintf log "Depth %i, score: %.1f (game over)" depth score
+            score
         | Ongoing ongoing when depth <= 0 ->
             heuristicEvaluations <- heuristicEvaluations + 1
-            heuristicOngoing ongoing
+            let score = heuristicOngoing ongoing
+            kprintf log "Depth %i, score: %.1f" depth score
+            score
         | Ongoing ongoing ->
-            let switch = if board.NextToMove = Black then 1.0 else -1.0
-            let value =
+            let scores =
                 ongoing.PossibleMoves
-                |> List.map (fun pm -> switch * minimaxCalc (depth - 1) pm.Result)
-                |> List.max
-            value * switch
+                |> List.map (fun pm -> minimaxCalc (depth - 1) pm.Result)
+            let bestScore = if board.NextToMove = Black then List.max scores else List.min scores
+            kprintf log "Depth %i, next to move: %O, best score: %.1f, options: %s" depth board.NextToMove bestScore (formatScores scores)
+            bestScore
 
     (minimaxCalc depth board, heuristicEvaluations)
 
-let createWithLog logger depth =
-    let log = kprintf logger
+let createWithLog log depth =
     let random = new System.Random()
     let mutable moveIndex = 0
     let stopwatch = System.Diagnostics.Stopwatch()
@@ -49,16 +54,13 @@ let createWithLog logger depth =
 
             let movesWithScoresAndEvaluations =
                 ongoingGame.PossibleMoves
-                |> List.map (fun pm -> (pm, pm.Result |> minimax depth))
+                |> List.map (fun pm -> (pm, pm.Result |> minimax log depth))
 
             let totalHeuristicEvaluations = movesWithScoresAndEvaluations |> List.sumBy (fun (_, (_, evaluations)) -> evaluations)
             
             let movesWithScores = movesWithScoresAndEvaluations |> List.map (fun (move, (score, _)) -> move, score)
-
-            let bestScore =
-                match ongoingGame.Board.NextToMove with
-                | Black -> movesWithScores |> List.map snd |> List.max
-                | White -> movesWithScores |> List.map snd |> List.min
+            let scores = movesWithScores |> List.map snd
+            let bestScore = match ongoingGame.Board.NextToMove with | Black -> List.max scores | White -> List.min scores
 
             let bestMoves =
                 movesWithScores
@@ -70,7 +72,7 @@ let createWithLog logger depth =
             moveIndex <- moveIndex + 1
 
             stopwatch.Stop()
-            log "Move %i: %i heuristic evaluations, %.2fs " moveIndex totalHeuristicEvaluations (float (stopwatch.ElapsedMilliseconds - elapsedStart) / 1000.0)
+            kprintf log "Move %i: %i heuristic evaluations, score: %.1fs, options: %s, time: %.2fs " moveIndex totalHeuristicEvaluations bestScore (formatScores scores) (float (stopwatch.ElapsedMilliseconds - elapsedStart) / 1000.0)
 
             bestMoves.Item choice
     }
