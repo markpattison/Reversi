@@ -44,11 +44,8 @@ let minimax (log: Logger) maxDepth board =
 let createWithLog log depth =
     let random = new System.Random()
     let mutable moveIndex = 0
-    let stopwatch = System.Diagnostics.Stopwatch()
     {
         ChooseMove = fun ongoingGame ->
-            let elapsedStart = stopwatch.ElapsedMilliseconds
-            stopwatch.Start()
 
             let movesWithScoresAndEvaluations =
                 ongoingGame.PossibleMoves
@@ -69,8 +66,7 @@ let createWithLog log depth =
 
             moveIndex <- moveIndex + 1
 
-            stopwatch.Stop()
-            log.Log -1 (sprintf "Move %i: %i heuristic evaluations, score: %.1fs, time: %.2fs " moveIndex totalHeuristicEvaluations bestScore (float (stopwatch.ElapsedMilliseconds - elapsedStart) / 1000.0))
+            log.Log -1 (sprintf "Move %i: %i heuristic evaluations, score: %.1fs" moveIndex totalHeuristicEvaluations bestScore)
 
             bestMoves.Item choice
     }
