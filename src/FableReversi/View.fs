@@ -126,7 +126,7 @@ let gameContent model dispatch =
         | _ -> false
 
     Columns.columns []
-      [ Column.column [ Column.Width (Screen.All, Column.Is9) ]
+      [ Column.column [ Column.Width (Screen.All, Column.Is8) ]
           [ showBoard dispatch humanPlaying model.BoardView ]
         Column.column []
             [ p []

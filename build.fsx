@@ -111,7 +111,6 @@ open Fake.Core.TargetOperators
     ==> "InstallClient"
     ==> "Build"
 
-
 "Clean"
     ==> "InstallClient"
     ==> "Run"
