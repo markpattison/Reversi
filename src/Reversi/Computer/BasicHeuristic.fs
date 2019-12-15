@@ -4,8 +4,26 @@ open Microsoft.FSharp.Core.Printf
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
+let corners board =
+    [
+        board.Squares.[0]
+        board.Squares.[7]
+        board.Squares.[56]
+        board.Squares.[63]
+    ]
+
 let heuristicOngoing (ongoing: OngoingGame) =
-    float (ongoing.Board.NumBlack - ongoing.Board.NumWhite) // TODO: improve
+    let piecesScore = ongoing.Board.NumBlack - ongoing.Board.NumWhite
+    let movesScore = ongoing.PossibleMoves.Length
+    let cornersScore =
+        ongoing.Board
+        |> corners
+        |> List.sumBy (fun sq ->
+            if sq = Piece (ongoing.Board.NextToMove) then 1
+            elif sq = Empty then 0
+            else -1)
+    
+    float (piecesScore + 3 * movesScore + 10 * cornersScore)
 
 let heuristicFinished (finished: FinishedGame) =
     match finished.Result with
