@@ -95,7 +95,11 @@ let showBoard dispatch humanPlaying boardView =
         |> List.map (fun row -> 
             tr [] (row |> List.map (showSquare dispatch humanPlaying)))
     
-    Table.table [ Table.IsBordered; Table.IsNarrow; Table.Props [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
+    Table.table
+        [ Table.IsBordered
+          Table.IsNarrow
+          Table.Props
+            [ Style [ TableLayout "fixed"; Height "400px"; Width "400px" ] ] ]
         [ tbody [] rows ]
 
 let playerName player =
