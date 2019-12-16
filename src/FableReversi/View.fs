@@ -10,8 +10,21 @@ open Types
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
-let toPieceIcon colour = [ Fa.i [ Fa.Size Fa.Fa2x; Fa.Solid.Circle; Fa.Props [ Style [ Color colour ] ] ] [] ]
-let toCellProps colour : IHTMLProp list = [ Style [ TextAlign TextAlignOptions.Center; VerticalAlign "middle"; Height "50px"; Width "50px"; BackgroundColor colour ] ]
+let toPieceIcon colour =
+    [ Fa.i
+        [ Fa.Size Fa.Fa2x
+          Fa.Solid.Circle
+          Fa.Props
+            [ Style [ Color colour ] ] ]
+        [] ]
+
+let toCellProps colour : IHTMLProp list =
+    [ Style
+        [ TextAlign TextAlignOptions.Center
+          VerticalAlign "middle"
+          Height "50px"
+          Width "50px"
+          BackgroundColor colour ] ]
 
 let blackPiece = toPieceIcon "#000000"
 let whitePiece = toPieceIcon "#ffffff"
