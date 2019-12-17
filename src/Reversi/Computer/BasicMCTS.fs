@@ -4,19 +4,6 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 open System
 
-
-let playout (random:Random) (board:Board) =
-    let rec next board =
-        let moves = Board.getPossibleMoves board
-        if moves.Length > 0 then
-            let choice = random.Next(0, moves.Length)
-            next (moves.[choice].Result)
-        else
-            board
-
-    next board
-
-
 let c = System.Math.Sqrt(2.)
 
 [<RequireQualifiedAccess>]
@@ -99,7 +86,8 @@ and Node(parent:Node option,random:Random,board:Board) =
                         isDone <- true
                 else
                     let choice = random.Next(0, moves.Length)
-                    currentBoard <- moves.[choice].Result
+                    let move = Board.applyMove moves.[choice] currentBoard
+                    currentBoard <- move.Result
 
         member this.Select() =
             match !children with
@@ -126,12 +114,12 @@ and Node(parent:Node option,random:Random,board:Board) =
                         Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
                     else
                         moves
-                        |> Array.map (fun m ->
+                        |> Array.map (fun pos ->
+                            let m = Board.applyMove pos board
                             let n = Node(Some this,random,m.Result)
                             n.Playout()
                             n)
                         |> Children.Moves
-
 
 let createWithLog (log: Logger) depth =
     let random = Random()
