@@ -6,12 +6,14 @@ open FableReversi.Reversi.Runner
 let create() =
     let random = new System.Random()
     {
+        OpponentSelected = ignore
+        OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->
             let movesWithMostFlips =
                 ongoingGame.PossibleMoves
-                |> List.groupBy (fun pm -> pm.Flips.Length)
-                |> List.maxBy fst
+                |> Array.groupBy (fun pm -> pm.Flips.Length)
+                |> Array.maxBy fst
                 |> snd
             let choice = random.Next(0, movesWithMostFlips.Length)
-            movesWithMostFlips.Item choice
+            movesWithMostFlips.[choice]
     }

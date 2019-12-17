@@ -1,5 +1,5 @@
-module FableReversi.View
 
+module FableReversi.View
 open Browser.Types
 open Fable.FontAwesome
 open Fable.React
@@ -51,16 +51,16 @@ let dropdown value key dispatch =
         match List.tryFind (fun (_, name) -> name = ev.Value) players with
         | Some (pc, _) -> dispatch pc
         | None -> ()
-    
+
     let dropDownItems =
         players
         |> List.map (fun (_, name) -> option [ Value name ] [ str name ])
-    
+
     let currentValue =
         match List.tryFind (fun (cp, _) -> cp = value) players with
         | Some (_, name) -> name
         | None -> ""
-    
+
     Field.div []
         [ Control.div []
             [ Select.select
@@ -94,7 +94,7 @@ let showSquare dispatch humanPlaying (location, square, view) =
         | Piece Black, _ -> blackPiece
         | Piece White, WouldFlip -> whiteFlipPiece
         | Piece White, _ -> whitePiece
-    
+
     let onHover = OnMouseOver (fun _ -> Hover location |> dispatch) :> IHTMLProp
     let onClick = OnClick (fun _ -> Click location |> dispatch) :> IHTMLProp
 
@@ -105,9 +105,9 @@ let showSquare dispatch humanPlaying (location, square, view) =
 let showBoard dispatch humanPlaying boardView =
     let rows =
         boardView.SquareViews
-        |> List.map (fun row -> 
+        |> List.map (fun row ->
             tr [] (row |> List.map (showSquare dispatch humanPlaying)))
-    
+
     Table.table
         [ Table.IsBordered
           Table.IsNarrow
@@ -128,7 +128,7 @@ let summary result =
 
 let gameContent model dispatch =
     let gameInfo = model.GameInfo
-    
+
     let blackToPlay, whiteToPlay, result =
         match gameInfo.Board.NextToMove, gameInfo.State with
         | _, Finished fg -> false, false, Some fg.Result

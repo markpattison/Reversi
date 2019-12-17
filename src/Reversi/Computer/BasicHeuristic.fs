@@ -1,6 +1,5 @@
 module FableReversi.Reversi.Computer.Heuristics.Basic
 
-open Microsoft.FSharp.Core.Printf
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
@@ -22,7 +21,7 @@ let heuristicOngoing (ongoing: OngoingGame) =
             if sq = Piece (ongoing.Board.NextToMove) then 1
             elif sq = Empty then 0
             else -1)
-    
+
     float (piecesScore + 3 * movesScore + 10 * cornersScore)
 
 let heuristicFinished (finished: FinishedGame) =
@@ -52,8 +51,8 @@ let minimax (log: Logger) maxDepth board =
         | Ongoing ongoing ->
             let scores =
                 ongoing.PossibleMoves
-                |> List.map (fun pm -> minimaxCalc (depth + 1) pm.Result)
-            let bestScore = if board.NextToMove = Black then List.max scores else List.min scores
+                |> Array.map (fun pm -> minimaxCalc (depth + 1) pm.Result)
+            let bestScore = if board.NextToMove = Black then Array.max scores else Array.min scores
             log.Log depth (sprintf "Depth %i, next to move: %O, score: %.1f" depth board.NextToMove bestScore)
             bestScore
 
@@ -63,22 +62,24 @@ let createWithLog log depth =
     let random = new System.Random()
     let mutable moveIndex = 0
     {
+        OpponentSelected = ignore
+        OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->
 
             let movesWithScoresAndEvaluations =
                 ongoingGame.PossibleMoves
-                |> List.map (fun pm -> (pm, pm.Result |> minimax log depth))
+                |> Array.map (fun pm -> (pm, pm.Result |> minimax log depth))
 
-            let totalHeuristicEvaluations = movesWithScoresAndEvaluations |> List.sumBy (fun (_, (_, evaluations)) -> evaluations)
-            
-            let movesWithScores = movesWithScoresAndEvaluations |> List.map (fun (move, (score, _)) -> move, score)
-            let scores = movesWithScores |> List.map snd
-            let bestScore = match ongoingGame.Board.NextToMove with | Black -> List.max scores | White -> List.min scores
+            let totalHeuristicEvaluations = movesWithScoresAndEvaluations |> Array.sumBy (fun (_, (_, evaluations)) -> evaluations)
+
+            let movesWithScores = movesWithScoresAndEvaluations |> Array.map (fun (move, (score, _)) -> move, score)
+            let scores = movesWithScores |> Array.map snd
+            let bestScore = match ongoingGame.Board.NextToMove with | Black -> Array.max scores | White -> Array.min scores
 
             let bestMoves =
                 movesWithScores
-                |> List.filter (fun (_, score) -> score = bestScore)
-                |> List.map fst
+                |> Array.filter (fun (_, score) -> score = bestScore)
+                |> Array.map fst
 
             let choice = random.Next(0, bestMoves.Length)
 
@@ -86,7 +87,7 @@ let createWithLog log depth =
 
             log.Log -1 (sprintf "Move %i: %i heuristic evaluations, score: %.1fs" moveIndex totalHeuristicEvaluations bestScore)
 
-            bestMoves.Item choice
+            bestMoves.[choice]
     }
 
 let create depth = createWithLog (Logger.Create()) depth

@@ -11,6 +11,8 @@ type Heuristic = Board -> float
 type ComputerPlayer =
     {
         ChooseMove: OngoingGame -> PossibleMove
+        OpponentSelected: PossibleMove -> unit
+        OnMoveSkipped : unit -> unit
     }
 
 module Actions =
