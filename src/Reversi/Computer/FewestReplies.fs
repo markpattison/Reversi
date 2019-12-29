@@ -11,12 +11,14 @@ let numberPossibleMoves board =
 let create() =
     let random = new System.Random()
     {
+        OpponentSelected = ignore
+        OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->
             let movesWithFewestReplies =
                 ongoingGame.PossibleMoves
-                |> List.groupBy (fun pm -> pm.Result |> numberPossibleMoves)
-                |> List.maxBy fst
+                |> Array.groupBy (fun pm -> pm.Result |> numberPossibleMoves)
+                |> Array.maxBy fst
                 |> snd
             let choice = random.Next(0, movesWithFewestReplies.Length)
-            movesWithFewestReplies.Item choice
+            movesWithFewestReplies.[choice]
     }

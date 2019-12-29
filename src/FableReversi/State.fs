@@ -9,22 +9,22 @@ open Types
 let getPossibleMoves gameInfo =
     match gameInfo.State with
     | Ongoing { PossibleMoves = moves } -> moves
-    | _ -> []
+    | _ -> [||]
 
 let getPossibleMoveLocations gameInfo =
     getPossibleMoves gameInfo
-    |> List.map (fun pm -> pm.MoveLocation)
+    |> Array.map (fun pm -> pm.MoveLocation)
 
 let toBoardView gameInfo =
     let possibleMoveLocations = getPossibleMoveLocations gameInfo
-    
+
     { SquareViews =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
                 let location = Location (x, y)
                 let view =
-                    if List.contains location possibleMoveLocations then
+                    if Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
@@ -41,9 +41,9 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
                 let view =
                     if location = possibleMove.MoveLocation then
                         PossibleMoveHover
-                    elif List.contains location possibleMove.Flips then
+                    elif Array.contains location possibleMove.Flips then
                         WouldFlip
-                    elif List.contains location possibleMoveLocations then
+                    elif Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
@@ -84,27 +84,38 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
     match msg with
 
     | Hover location ->
-        match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
+        match Array.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
         | Some possibleMove ->
             let boardView = toBoardViewPossibleMoveHover model.GameInfo possibleMove
             { model with BoardView = boardView }, Cmd.none
-        
+
         | None -> { model with BoardView = toBoardView model.GameInfo }, Cmd.none
-    
+
     | Click location ->
-        match List.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
+        match Array.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
 
     | GameAction action ->
         let newModel =
             match action, model.GameInfo.State with
-            | PlayMove possibleMove, Ongoing _ when List.exists (fun pm -> pm.MoveLocation = possibleMove.MoveLocation) possibleMoves -> updateBoard model possibleMove.Result
-            | SkipMove, OngoingSkipMove _ -> updateBoard model (Actions.skipMove model.GameInfo)
+            | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.MoveLocation = possibleMove.MoveLocation) possibleMoves ->
+                if model.GameInfo.Board.NextToMove = White then
+                    match model.PlayerBlack with
+                    | _,Computer p -> p.OpponentSelected possibleMove
+                    | _ -> ()
+                else
+                    match model.PlayerWhite with
+                    | _,Computer p -> p.OpponentSelected possibleMove
+                    | _ -> ()
+
+                updateBoard model possibleMove.Result
+            | SkipMove, OngoingSkipMove _ ->
+                updateBoard model (Actions.skipMove model.GameInfo)
             | _ -> model
 
         newModel, Cmd.ofMsg RequestComputerMoveIfNeeded
-    
+
     | RequestComputerMoveIfNeeded ->
         let computerRequest =
             match model.GameInfo.State, model.CurrentPlayer with
@@ -113,7 +124,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
             | OngoingSkipMove _, _ -> Cmd.ofMsg (GameAction SkipMove)
             | Ongoing ongoingGame, Computer player ->
                 Cmd.OfAsync.perform requestComputerMove (player, ongoingGame) (fun move -> GameAction (PlayMove move))
-        
+
         model, computerRequest
 
     | Restart -> model, Cmd.none // handled at Model level
@@ -121,7 +132,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg, model.OuterState with
-    | LobbyMsg Start, Lobby { PlayerBlackChoice = blackPlayer; PlayerWhiteChoice = whitePlayer } -> 
+    | LobbyMsg Start, Lobby { PlayerBlackChoice = blackPlayer; PlayerWhiteChoice = whitePlayer } ->
         let startingBoard = Board.startingBoard
         let gameInfo = Board.toGameInfo startingBoard
 
@@ -130,9 +141,9 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
               BoardView = toBoardView gameInfo
               PlayerBlack = createPlayer blackPlayer
               PlayerWhite = createPlayer whitePlayer }
-        
+
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
-    
+
     | GameMsg Restart, Playing gameModel ->
         let startingBoard = Board.startingBoard
         let gameInfo = Board.toGameInfo startingBoard
@@ -142,7 +153,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
               BoardView = toBoardView gameInfo
               PlayerBlack = gameModel.PlayerWhite
               PlayerWhite = gameModel.PlayerBlack }
-        
+
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
     | GameMsg ChangePlayers, Playing _ -> init()
@@ -150,10 +161,10 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | LobbyMsg lobbyMsg, Lobby lobbyOptions ->
         let updatedLobbyOptions, cmd = updateLobby lobbyMsg lobbyOptions
         { model with OuterState = Lobby updatedLobbyOptions }, Cmd.map LobbyMsg cmd
-    
+
     | GameMsg gameMsg, Playing gameModel ->
         let updatedGameModel, cmd = updateGame gameMsg gameModel
         { model with OuterState = Playing updatedGameModel }, Cmd.map GameMsg cmd
-    
+
     | LobbyMsg _, Playing _ -> model, Cmd.none
     | GameMsg _, Lobby _ -> model, Cmd.none

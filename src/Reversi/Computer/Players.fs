@@ -7,6 +7,7 @@ type ComputerPlayerChoice =
     | BasicHeuristicDepth0
     | BasicHeuristicDepth1
     | BasicHeuristicDepth2
+    | BasicMCTS
 
 let all =
     [
@@ -16,6 +17,7 @@ let all =
         BasicHeuristicDepth0, "BasicHeuristic depth 0"
         BasicHeuristicDepth1, "BasicHeuristic depth 1"
         BasicHeuristicDepth2, "BasicHeuristic depth 2"
+        BasicMCTS, "BasicMCTS"
     ]
 
 let Create choice =
@@ -26,3 +28,4 @@ let Create choice =
     | BasicHeuristicDepth0 -> Heuristics.Basic.create 0
     | BasicHeuristicDepth1 -> Heuristics.Basic.create 1
     | BasicHeuristicDepth2 -> Heuristics.Basic.create 2
+    | BasicMCTS -> Heuristics.BasicMCTS.create 2
