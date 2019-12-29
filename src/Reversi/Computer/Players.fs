@@ -28,4 +28,4 @@ let Create choice =
     | BasicHeuristicDepth0 -> Heuristics.Basic.create 0
     | BasicHeuristicDepth1 -> Heuristics.Basic.create 1
     | BasicHeuristicDepth2 -> Heuristics.Basic.create 2
-    | BasicMCTS -> Heuristics.BasicMCTS.create 2
+    | BasicMCTS -> Heuristics.BasicMCTS.create()

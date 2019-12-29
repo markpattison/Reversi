@@ -10,7 +10,7 @@ let allTests =
             let logger = Logger.Create()
 
             let playerBlack = Computer.Random.create()
-            let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger 2
+            let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger
 
             printfn "Black: Random, White: BasicMCTS"
 
@@ -32,7 +32,7 @@ let allTests =
 
             let logger = Logger.Create()
             let playerBlack = Computer.Heuristics.Basic.createWithLog logger 2
-            let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger 2
+            let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger
             let result = playGame playerBlack playerWhite Board.startingBoard
 
             match result.Result with

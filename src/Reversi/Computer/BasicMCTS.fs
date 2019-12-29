@@ -121,7 +121,7 @@ and Node(parent:Node option,random:Random,board:Board) =
                             n)
                         |> Children.Moves
 
-let createWithLog (log: Logger) depth =
+let createWithLog (log: Logger) =
     let random = Random()
     let mutable current = Node(None,random,Board.startingBoard)
     let mutable moveIndex = 0
@@ -142,4 +142,4 @@ let createWithLog (log: Logger) depth =
             selected
     }
 
-let create depth = createWithLog (Logger.Create()) depth
+let create() = createWithLog (Logger.Create())
