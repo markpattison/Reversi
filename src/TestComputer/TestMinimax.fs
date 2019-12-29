@@ -15,7 +15,7 @@ let allTests =
 
             printfn "Black: Random, White: BasicHeuristic depth 2"
 
-            for _ in 1..10 do
+            for _ in 1..5 do
                 let result = playGame playerBlack playerWhite Board.startingBoard
 
                 let summary =

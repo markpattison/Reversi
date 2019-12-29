@@ -136,7 +136,7 @@ let createWithLog (log: Logger) =
 
             moveIndex <- moveIndex + 1
             current <- current.ApplyBestMove()
-            log.Log -1 (sprintf "Move %i: chances: %.3f tries: %d" moveIndex current.Chances (int current.Tries))
+            log.Log 0 (sprintf "Move %i: chances: %.3f tries: %d" moveIndex current.Chances (int current.Tries))
 
             let selected = ongoingGame.PossibleMoves |> Array.find (fun m -> m.Result = current.Board)
             selected

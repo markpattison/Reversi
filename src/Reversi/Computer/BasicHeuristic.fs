@@ -43,7 +43,7 @@ let minimax (log: Logger) maxDepth board =
             let score = heuristicFinished f
             log.Log depth (sprintf "Depth %i, score: %.1f (game over)" depth score)
             score
-        | Ongoing ongoing when depth >= maxDepth ->
+        | Ongoing ongoing when depth > maxDepth ->
             heuristicEvaluations <- heuristicEvaluations + 1
             let score = heuristicOngoing ongoing
             log.Log depth (sprintf "Depth %i, score: %.1f" depth score)
@@ -56,7 +56,7 @@ let minimax (log: Logger) maxDepth board =
             log.Log depth (sprintf "Depth %i, next to move: %O, score: %.1f" depth board.NextToMove bestScore)
             bestScore
 
-    (minimaxCalc 0 board, heuristicEvaluations)
+    (minimaxCalc 1 board, heuristicEvaluations)
 
 let createWithLog log depth =
     let random = new System.Random()
@@ -85,7 +85,7 @@ let createWithLog log depth =
 
             moveIndex <- moveIndex + 1
 
-            log.Log -1 (sprintf "Move %i: %i heuristic evaluations, score: %.1fs" moveIndex totalHeuristicEvaluations bestScore)
+            log.Log 0 (sprintf "Move %i: %i heuristic evaluations, score: %.1fs" moveIndex totalHeuristicEvaluations bestScore)
 
             bestMoves.[choice]
     }
