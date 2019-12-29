@@ -5,7 +5,7 @@ open Expecto
 [<EntryPoint>]
 let main args =
     testList "All tests" [
-        //TestMinimax.allTests
+        TestMinimax.allTests
         TestMCTS.allTests
     ]
     |> runTestsWithArgs defaultConfig args
