@@ -10,7 +10,9 @@ open System
 
 open Fake.Core
 open Fake.DotNet
+open Fake.DotNet.Testing
 open Fake.IO
+open Fake.IO.Globbing.Operators
 
 Target.initEnvironment ()
 
@@ -18,6 +20,7 @@ let clientPath = Path.getFullName "./src/FableReversi"
 let clientDeployPath = Path.combine clientPath "deploy"
 let domainPath = Path.getFullName "./src/Reversi"
 let testComputerPath = Path.getFullName "./src/TestComputer"
+let testComputerPattern = "./src/TestComputer/bin/**/TestComputer.dll"
 let deployDir = Path.getFullName "./deploy"
 
 let platformTool tool winTool =
@@ -103,7 +106,8 @@ Target.create "Build computer tests" (fun _ ->
     runDotNet "build" testComputerPath)
 
 Target.create "Test" (fun _ ->
-    runDotNet "test --logger:trx --no-build" testComputerPath)
+    let testAssembly = !! testComputerPattern
+    Expecto.run id testAssembly)
 
 open Fake.Core.TargetOperators
 
