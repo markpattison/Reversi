@@ -9,17 +9,6 @@ type ComputerPlayerChoice =
     | BasicHeuristicDepth2
     | BasicMCTS
 
-let all =
-    [
-        Random
-        Greedy
-        FewestReplies
-        BasicHeuristicDepth0
-        BasicHeuristicDepth1
-        BasicHeuristicDepth2
-        BasicMCTS
-    ]
-
 let Create choice =
     match choice with
     | Random -> Random.create()

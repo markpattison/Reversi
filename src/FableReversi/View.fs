@@ -8,7 +8,19 @@ open Fulma
 
 open Types
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer.Players
 open FableReversi.Reversi.Runner
+
+let computerPlayers =
+    [
+        Random
+        Greedy
+        FewestReplies
+        BasicHeuristicDepth0
+        BasicHeuristicDepth1
+        BasicHeuristicDepth2
+        BasicMCTS
+    ]
 
 let toPieceIcon colour =
     [ Fa.i
@@ -43,7 +55,7 @@ let button txt onClick =
         [ str txt ]
 
 let players =
-    let computers = List.map (fun cp -> (ComputerChoice cp, sprintf "Computer: %O" cp)) (Computer.Players.all)
+    let computers = List.map (fun cp -> (ComputerChoice cp, sprintf "Computer: %O" cp)) computerPlayers
     (HumanChoice, "Human") :: computers
 
 let dropdown value key dispatch =
