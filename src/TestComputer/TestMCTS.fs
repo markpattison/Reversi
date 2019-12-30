@@ -24,7 +24,7 @@ let allTests =
             | Win White ->
                 logger.Log -1 (sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack)
 
-            logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
+            logger.Print -1
         )
 
         testCase "BasicHeuristic depth 2 vs. MCTS" (fun _ ->
@@ -45,6 +45,6 @@ let allTests =
             | Win White ->
                 logger.Log -1 (sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack)
 
-            logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
+            logger.Print -1
         )
     ]

@@ -4,7 +4,6 @@ open Expecto
 open FableReversi.Reversi
 open FableReversi.TestComputer.Helpers
 
-
 let allTests =
     testList "minimax player" [
         testCase "dummy test" (fun _ ->
@@ -26,6 +25,6 @@ let allTests =
 
                 logger.Log -1 summary
 
-            logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
+            logger.Print -1
         )
     ]
