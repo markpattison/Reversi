@@ -12,7 +12,7 @@ let allTests =
             let playerBlack = Computer.Random.create()
             let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger
 
-            printfn "Black: Random, White: BasicMCTS"
+            logger.Log -1 "Black: Random, White: BasicMCTS"
 
             let result = playGame playerBlack playerWhite Board.startingBoard
 
@@ -28,11 +28,13 @@ let allTests =
         )
 
         testCase "BasicHeuristic depth 2 vs. MCTS" (fun _ ->
-            printfn "Black: BasicHeuristic depth 2, White: BasicMCTS"
-
             let logger = Logger.Create()
+
             let playerBlack = Computer.Heuristics.Basic.createWithLog logger 2
             let playerWhite = Computer.Heuristics.BasicMCTS.createWithLog logger
+
+            logger.Log -1 "Black: BasicHeuristic depth 2, White: BasicMCTS"
+
             let result = playGame playerBlack playerWhite Board.startingBoard
 
             match result.Result with

@@ -13,7 +13,7 @@ let allTests =
             let playerBlack = Computer.Random.create()
             let playerWhite = Computer.Heuristics.Basic.createWithLog logger 2
 
-            printfn "Black: Random, White: BasicHeuristic depth 2"
+            logger.Log -1 "Black: Random, White: BasicHeuristic depth 2"
 
             for _ in 1..5 do
                 let result = playGame playerBlack playerWhite Board.startingBoard
@@ -26,6 +26,6 @@ let allTests =
 
                 logger.Log -1 summary
 
-                logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
+            logger.Read -1 |> List.iter (fun s -> printfn "%s" s)
         )
     ]
