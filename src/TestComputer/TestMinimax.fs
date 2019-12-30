@@ -10,14 +10,11 @@ let allTests =
             let logger = Logger.Create()
 
             let playerBlack = fun _ -> Computer.Random.create()
-            let playerWhite = fun _ -> Computer.Heuristics.Basic.createWithLog logger 2
+            let playerWhite = fun _ -> Computer.Heuristics.Basic.create 2
 
-            logger.Log -1 "Black: Random, White: BasicHeuristic depth 2"
+            let series = playSeries playerBlack playerWhite 5
 
-            for _ in 1..5 do
-                let result = playGame playerBlack playerWhite Board.startingBoard
-
-                logger.Log -1 (result.ToString())
+            seriesSummary series |> logger.Log -1
 
             logger.Print -1
         )

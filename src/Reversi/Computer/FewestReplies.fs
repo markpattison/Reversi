@@ -11,6 +11,7 @@ let numberPossibleMoves board =
 let create() =
     let random = new System.Random()
     {
+        Name = "FewestReplies"
         OpponentSelected = ignore
         OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->

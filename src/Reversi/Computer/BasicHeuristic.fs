@@ -62,6 +62,7 @@ let createWithLog log depth =
     let random = new System.Random()
     let mutable moveIndex = 0
     {
+        Name = sprintf "BasicHeuristic depth %i" depth
         OpponentSelected = ignore
         OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->

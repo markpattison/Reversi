@@ -6,6 +6,7 @@ open FableReversi.Reversi.Runner
 let create() =
     let random = new System.Random()
     {
+        Name = "Random"
         OpponentSelected = ignore
         OnMoveSkipped = ignore
         ChooseMove = fun ongoingGame ->
