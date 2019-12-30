@@ -16,13 +16,7 @@ let allTests =
 
             let result = playGame playerBlack playerWhite Board.startingBoard
 
-            match result.Result with
-            | Tie ->  logger.Log -1 "Tie!"
-            | Win Black ->
-                logger.Log -1 (sprintf "Black wins %i-%i" result.Board.NumBlack result.Board.NumWhite)
-                failwithf "lost againts random player"
-            | Win White ->
-                logger.Log -1 (sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack)
+            logger.Log -1 (result.ToString())
 
             logger.Print -1
         )
@@ -37,13 +31,7 @@ let allTests =
 
             let result = playGame playerBlack playerWhite Board.startingBoard
 
-            match result.Result with
-            | Tie ->
-                logger.Log -1 "Tie!"
-            | Win Black ->
-                logger.Log -1 (sprintf "Black wins %i-%i" result.Board.NumBlack result.Board.NumWhite)
-            | Win White ->
-                logger.Log -1 (sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack)
+            logger.Log -1 (result.ToString())
 
             logger.Print -1
         )

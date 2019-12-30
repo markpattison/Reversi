@@ -17,13 +17,7 @@ let allTests =
             for _ in 1..5 do
                 let result = playGame playerBlack playerWhite Board.startingBoard
 
-                let summary =
-                    match result.Result with
-                    | Tie -> "Tie!"
-                    | Win Black -> sprintf "Black wins %i-%i" result.Board.NumBlack result.Board.NumWhite
-                    | Win White -> sprintf "White wins %i-%i" result.Board.NumWhite result.Board.NumBlack
-
-                logger.Log -1 summary
+                logger.Log -1 (result.ToString())
 
             logger.Print -1
         )
