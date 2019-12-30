@@ -16,7 +16,11 @@ type TimedResult =
         | Win Black -> sprintf "Black wins %i-%i (%s)" this.FinishedGame.Board.NumBlack this.FinishedGame.Board.NumWhite times
         | Win White -> sprintf "White wins %i-%i (%s)" this.FinishedGame.Board.NumWhite this.FinishedGame.Board.NumBlack times
 
-let playGame playerBlack playerWhite board =
+let playGame createPlayerBlack createPlayerWhite board =
+
+    let playerBlack = createPlayerBlack ()
+    let playerWhite = createPlayerWhite ()
+
     let stopwatchWhite = System.Diagnostics.Stopwatch()
     let stopwatchBlack = System.Diagnostics.Stopwatch()
 

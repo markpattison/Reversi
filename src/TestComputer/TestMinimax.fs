@@ -9,8 +9,8 @@ let allTests =
         testCase "dummy test" (fun _ ->
             let logger = Logger.Create()
 
-            let playerBlack = Computer.Random.create()
-            let playerWhite = Computer.Heuristics.Basic.createWithLog logger 2
+            let playerBlack = fun _ -> Computer.Random.create()
+            let playerWhite = fun _ -> Computer.Heuristics.Basic.createWithLog logger 2
 
             logger.Log -1 "Black: Random, White: BasicHeuristic depth 2"
 
