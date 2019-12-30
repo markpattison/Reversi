@@ -11,13 +11,13 @@ type ComputerPlayerChoice =
 
 let all =
     [
-        Random, "Random"
-        Greedy, "Greedy"
-        FewestReplies, "FewestReplies"
-        BasicHeuristicDepth0, "BasicHeuristic depth 0"
-        BasicHeuristicDepth1, "BasicHeuristic depth 1"
-        BasicHeuristicDepth2, "BasicHeuristic depth 2"
-        BasicMCTS, "BasicMCTS"
+        Random
+        Greedy
+        FewestReplies
+        BasicHeuristicDepth0
+        BasicHeuristicDepth1
+        BasicHeuristicDepth2
+        BasicMCTS
     ]
 
 let Create choice =
