@@ -16,9 +16,9 @@ let computerPlayers =
         Random
         Greedy
         FewestReplies
-        BasicHeuristicDepth0
-        BasicHeuristicDepth1
-        BasicHeuristicDepth2
+        BasicHeuristic 0
+        BasicHeuristic 1
+        BasicHeuristic 2
         BasicMCTS
     ]
 
