@@ -1,17 +1,19 @@
 module FableReversi.Reversi.Computer.Players
 
+open FableReversi.Reversi.Computer.Heuristics
+
 type ComputerPlayerChoice =
     | Random
     | Greedy
     | FewestReplies
-    | BasicHeuristic of int
+    | Minimax of HeuristicChoice * int
     | BasicMCTS
     member this.Name =
         match this with
         | Random -> "Random"
         | Greedy -> "Greedy"
         | FewestReplies -> "FewestReplies"
-        | BasicHeuristic depth -> sprintf "BasicHeuristic depth %i" depth
+        | Minimax (heuristic, depth) -> sprintf "Minimax, %s heuristic, depth %i" heuristic.Name depth
         | BasicMCTS -> "BasicMCTS"
 
 let Create choice =
@@ -19,5 +21,5 @@ let Create choice =
     | Random -> Random.create()
     | Greedy -> Greedy.create()
     | FewestReplies -> FewestReplies.create()
-    | BasicHeuristic depth -> Heuristics.Basic.create depth
-    | BasicMCTS -> Heuristics.BasicMCTS.create()
+    | Minimax (heuristic, depth) -> Minimax.create (createHeuristic heuristic) depth
+    | BasicMCTS -> BasicMCTS.create()

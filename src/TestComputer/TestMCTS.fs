@@ -2,6 +2,7 @@ module FableReversi.TestComputer.TestMCTS
 
 open Expecto
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer
 open FableReversi.TestComputer.Helpers
 
 let allTests =
@@ -11,8 +12,8 @@ let allTests =
 
             let series =
                 playSeries
-                    Computer.Players.Random
-                    Computer.Players.BasicMCTS
+                    Players.Random
+                    Players.BasicMCTS
                     1
 
             seriesSummary series |> logger.Log -1
@@ -25,8 +26,8 @@ let allTests =
 
             let series =
                 playSeries
-                    (Computer.Players.BasicHeuristic 2)
-                    Computer.Players.BasicMCTS
+                    (Players.Minimax (Heuristics.Basic, 2))
+                    Players.BasicMCTS
                     2
 
             seriesSummary series |> logger.Log -1

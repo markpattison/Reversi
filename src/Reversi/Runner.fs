@@ -6,7 +6,7 @@ type GameAction =
     | SkipMove
     | PlayMove of PossibleMove
 
-type Heuristic = Board -> float
+type Heuristic = OngoingGame -> float
 
 type ComputerPlayer =
     {

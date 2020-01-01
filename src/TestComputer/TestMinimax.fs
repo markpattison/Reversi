@@ -2,6 +2,7 @@ module FableReversi.TestComputer.TestMinimax
 
 open Expecto
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer
 open FableReversi.TestComputer.Helpers
 
 let allTests =
@@ -11,8 +12,8 @@ let allTests =
 
             let series =
                 playSeries
-                    Computer.Players.Random
-                    (Computer.Players.BasicHeuristic 2)
+                    Players.Random
+                    (Players.Minimax (Heuristics.Basic, 2))
                     5
 
             seriesSummary series |> logger.Log -1

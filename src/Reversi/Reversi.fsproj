@@ -11,6 +11,7 @@
     <Compile Include="Computer\Greedy.fs" />
     <Compile Include="Computer\FewestReplies.fs" />
     <Compile Include="Computer\BasicHeuristic.fs" />
+    <Compile Include="Computer\Minimax.fs" />
     <Compile Include="Computer\BasicMCTS.fs" />
     <Compile Include="Computer\Players.fs" />
   </ItemGroup>
