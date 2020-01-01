@@ -8,6 +8,7 @@ open Fulma
 
 open Types
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer
 open FableReversi.Reversi.Computer.Players
 open FableReversi.Reversi.Runner
 
@@ -16,10 +17,10 @@ let computerPlayers =
         Random
         Greedy
         FewestReplies
-        BasicHeuristic 0
-        BasicHeuristic 1
-        BasicHeuristic 2
-        BasicMCTS
+        Minimax (Heuristics.Basic, 0)
+        Minimax (Heuristics.Basic, 1)
+        Minimax (Heuristics.Basic, 2)
+        MCTS
     ]
 
 let toPieceIcon colour =

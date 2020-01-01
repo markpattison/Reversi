@@ -1,4 +1,4 @@
-module FableReversi.Reversi.Computer.BasicMCTS
+module FableReversi.Reversi.Computer.MCTS
 
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner

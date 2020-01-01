@@ -13,7 +13,7 @@ let allTests =
             let series =
                 playSeries
                     Players.Random
-                    Players.BasicMCTS
+                    Players.MCTS
                     1
 
             seriesSummary series |> logger.Log -1
@@ -27,7 +27,7 @@ let allTests =
             let series =
                 playSeries
                     (Players.Minimax (Heuristics.Basic, 2))
-                    Players.BasicMCTS
+                    Players.MCTS
                     2
 
             seriesSummary series |> logger.Log -1
