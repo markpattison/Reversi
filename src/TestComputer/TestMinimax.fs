@@ -9,10 +9,11 @@ let allTests =
         testCase "dummy test" (fun _ ->
             let logger = Logger.Create()
 
-            let playerBlack = fun _ -> Computer.Random.create()
-            let playerWhite = fun _ -> Computer.Heuristics.Basic.create 2
-
-            let series = playSeries playerBlack playerWhite 5
+            let series =
+                playSeries
+                    Computer.Players.Random
+                    (Computer.Players.BasicHeuristic 2)
+                    5
 
             seriesSummary series |> logger.Log -1
 

@@ -34,10 +34,10 @@ type SeriesResult =
 let seriesSummary series =
     sprintf "%s (avg. time %.2f): %i, ties: %i, %s (avg. time %.2f): %i" series.NameOne series.AverageTimeOne series.WinsOne series.Ties series.NameTwo series.AverageTimeTwo series.WinsTwo
 
-let playGame createPlayerBlack createPlayerWhite board =
+let playGame playerBlackChoice playerWhiteChoice board =
 
-    let playerBlack = createPlayerBlack ()
-    let playerWhite = createPlayerWhite ()
+    let playerBlack = Computer.Players.Create playerBlackChoice
+    let playerWhite = Computer.Players.Create playerWhiteChoice
 
     let stopwatchWhite = System.Diagnostics.Stopwatch()
     let stopwatchBlack = System.Diagnostics.Stopwatch()
@@ -68,24 +68,24 @@ let playGame createPlayerBlack createPlayerWhite board =
     let finishedGame = play board
 
     {
-        NameBlack = playerBlack.Name
-        NameWhite = playerWhite.Name
+        NameBlack = playerBlackChoice.Name
+        NameWhite = playerWhiteChoice.Name
         FinishedGame = finishedGame
         TimeWhite = float stopwatchWhite.ElapsedMilliseconds / 1000.0
         TimeBlack = float stopwatchBlack.ElapsedMilliseconds / 1000.0
     }
 
-let playSeries createPlayerOne createPlayerTwo gamesPerSide =
+let playSeries playerOneChoice playerTwoChoice gamesPerSide =
     let resultsOneAsBlack =
-        Array.init gamesPerSide (fun _ -> playGame createPlayerOne createPlayerTwo Board.startingBoard)
+        Array.init gamesPerSide (fun _ -> playGame playerOneChoice playerTwoChoice Board.startingBoard)
     let resultsTwoAsBlack =
-        Array.init gamesPerSide (fun _ -> playGame createPlayerTwo createPlayerOne Board.startingBoard)
+        Array.init gamesPerSide (fun _ -> playGame playerTwoChoice playerOneChoice Board.startingBoard)
 
     let numGames = float (resultsOneAsBlack.Length + resultsTwoAsBlack.Length)
 
     {
-        NameOne = resultsOneAsBlack.[0].NameBlack
-        NameTwo = resultsOneAsBlack.[0].NameWhite
+        NameOne = playerOneChoice.Name
+        NameTwo = playerTwoChoice.Name
         WinsOne =
             (resultsOneAsBlack |> Seq.where (fun r -> r.FinishedGame.Result = Win Black) |> Seq.length) +
             (resultsTwoAsBlack |> Seq.where (fun r -> r.FinishedGame.Result = Win White) |> Seq.length)

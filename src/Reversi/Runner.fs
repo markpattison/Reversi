@@ -10,7 +10,6 @@ type Heuristic = Board -> float
 
 type ComputerPlayer =
     {
-        Name: string
         ChooseMove: OngoingGame -> PossibleMove
         OpponentSelected: PossibleMove -> unit
         OnMoveSkipped : unit -> unit

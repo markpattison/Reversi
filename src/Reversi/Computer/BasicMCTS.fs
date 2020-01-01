@@ -126,7 +126,6 @@ let createWithLog (log: Logger) =
     let mutable current = Node(None,random,Board.startingBoard)
     let mutable moveIndex = 0
     {
-        Name = "BasicMCTS"
         OnMoveSkipped = fun () -> current <- current.ApplyBestMove()
         OpponentSelected = fun selected -> current <- current.ApplyMove selected.Result
         ChooseMove = fun ongoingGame ->

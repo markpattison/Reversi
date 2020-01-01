@@ -6,6 +6,13 @@ type ComputerPlayerChoice =
     | FewestReplies
     | BasicHeuristic of int
     | BasicMCTS
+    member this.Name =
+        match this with
+        | Random -> "Random"
+        | Greedy -> "Greedy"
+        | FewestReplies -> "FewestReplies"
+        | BasicHeuristic depth -> sprintf "BasicHeuristic depth %i" depth
+        | BasicMCTS -> "BasicMCTS"
 
 let Create choice =
     match choice with
