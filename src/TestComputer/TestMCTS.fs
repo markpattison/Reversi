@@ -9,13 +9,13 @@ let allTests =
         testCase "random vs. MCTS" (fun _ ->
             let logger = Logger.Create()
 
-            let result =
-                playGame
+            let series =
+                playSeries
                     Computer.Players.Random
                     Computer.Players.BasicMCTS
-                    Board.startingBoard
+                    1
 
-            resultSummary result |> logger.Log -1
+            seriesSummary series |> logger.Log -1
 
             logger.Print -1
         )
