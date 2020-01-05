@@ -1,12 +1,13 @@
 module FableReversi.TestComputer.Game
 
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer.Players
 open FableReversi.Reversi.Runner
 
 type TimedResult =
     {
-        NameBlack: string
-        NameWhite: string
+        Black: ComputerPlayerChoice
+        White: ComputerPlayerChoice
         FinishedGame: FinishedGame
         TimeBlack: float
         TimeWhite: float
@@ -14,14 +15,14 @@ type TimedResult =
 
 let resultSummary result =
     match result.FinishedGame.Result with
-    | Tie -> sprintf "Tie! (%s: %.2fs, %s: %.2fs)" result.NameBlack result.TimeBlack result.NameWhite result.TimeWhite
-    | Win Black -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.NameBlack result.NameWhite result.FinishedGame.Board.NumBlack result.FinishedGame.Board.NumWhite result.NameBlack result.TimeBlack result.NameWhite result.TimeWhite
-    | Win White -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.NameWhite result.NameBlack result.FinishedGame.Board.NumWhite result.FinishedGame.Board.NumBlack result.NameWhite result.TimeWhite result.NameBlack result.TimeBlack
+    | Tie -> sprintf "Tie! (%s: %.2fs, %s: %.2fs)" result.Black.Name result.TimeBlack result.White.Name result.TimeWhite
+    | Win Black -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.Black.Name result.White.Name result.FinishedGame.Board.NumBlack result.FinishedGame.Board.NumWhite result.Black.Name result.TimeBlack result.White.Name result.TimeWhite
+    | Win White -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.White.Name result.Black.Name result.FinishedGame.Board.NumWhite result.FinishedGame.Board.NumBlack result.White.Name result.TimeWhite result.Black.Name result.TimeBlack
 
-let playGame playerBlackChoice playerWhiteChoice board =
+let playGame black white =
 
-    let playerBlack = Computer.Players.Create playerBlackChoice
-    let playerWhite = Computer.Players.Create playerWhiteChoice
+    let playerBlack = create black
+    let playerWhite = create white
 
     let stopwatchWhite = System.Diagnostics.Stopwatch()
     let stopwatchBlack = System.Diagnostics.Stopwatch()
@@ -49,11 +50,11 @@ let playGame playerBlackChoice playerWhiteChoice board =
                 playerBlack.OpponentSelected move
                 play (move.Result)
 
-    let finishedGame = play board
+    let finishedGame = play Board.startingBoard
 
     let gameResult =
-          { NameBlack = playerBlackChoice.Name
-            NameWhite = playerWhiteChoice.Name
+          { Black = black
+            White = white
             FinishedGame = finishedGame
             TimeWhite = float stopwatchWhite.ElapsedMilliseconds / 1000.0
             TimeBlack = float stopwatchBlack.ElapsedMilliseconds / 1000.0

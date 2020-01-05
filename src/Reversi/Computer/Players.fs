@@ -16,7 +16,7 @@ type ComputerPlayerChoice =
         | Minimax (heuristic, depth) -> sprintf "Minimax, %s heuristic, depth %i" heuristic.Name depth
         | MCTS playouts -> sprintf "MCTS, %i playouts per turn" playouts
 
-let Create choice =
+let create choice =
     match choice with
     | Random -> Random.create()
     | Greedy -> Greedy.create()

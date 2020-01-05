@@ -1,12 +1,13 @@
 module FableReversi.TestComputer.Series
 
 open FableReversi.Reversi
+open FableReversi.Reversi.Computer.Players
 open FableReversi.TestComputer.Game
 
 type SeriesResult =
     {
-        NameOne: string
-        NameTwo: string
+        PlayerOne: ComputerPlayerChoice
+        PlayerTwo: ComputerPlayerChoice
         WinsOne: int
         WinsTwo: int
         Ties: int
@@ -17,19 +18,19 @@ type SeriesResult =
     }
 
 let seriesSummary series =
-    sprintf "\n%s (avg. time %.2f): %i, ties: %i, %s (avg. time %.2f): %i\n" series.NameOne series.AverageTimeOne series.WinsOne series.Ties series.NameTwo series.AverageTimeTwo series.WinsTwo
+    sprintf "\n%s (avg. time %.2f): %i, ties: %i, %s (avg. time %.2f): %i\n" series.PlayerOne.Name series.AverageTimeOne series.WinsOne series.Ties series.PlayerTwo.Name series.AverageTimeTwo series.WinsTwo
 
-let playSeries playerOneChoice playerTwoChoice gamesPerSide =
+let playSeries playerOne playerTwo gamesPerSide =
     let resultsOneAsBlack =
-        Array.init gamesPerSide (fun _ -> playGame playerOneChoice playerTwoChoice Board.startingBoard)
+        Array.init gamesPerSide (fun _ -> playGame playerOne playerTwo)
     let resultsTwoAsBlack =
-        Array.init gamesPerSide (fun _ -> playGame playerTwoChoice playerOneChoice Board.startingBoard)
+        Array.init gamesPerSide (fun _ -> playGame playerTwo playerOne)
 
     let numGames = float (resultsOneAsBlack.Length + resultsTwoAsBlack.Length)
 
     let seriesResult =
-      { NameOne = playerOneChoice.Name
-        NameTwo = playerTwoChoice.Name
+      { PlayerOne = playerOne
+        PlayerTwo = playerTwo
         WinsOne =
             (resultsOneAsBlack |> Seq.where (fun r -> r.FinishedGame.Result = Win Black) |> Seq.length) +
             (resultsTwoAsBlack |> Seq.where (fun r -> r.FinishedGame.Result = Win White) |> Seq.length)
