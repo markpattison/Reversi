@@ -4,6 +4,35 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Computer.Players
 open FableReversi.Reversi.Runner
 
+type PlayerResult =
+    {
+        Player: ComputerPlayerChoice
+        Wins: int
+        Ties: int
+        Losses: int
+        PiecesFor: int
+        PiecesAgainst: int
+        Time: float
+    }
+    static member (+) (pr1: PlayerResult, pr2: PlayerResult) =
+        if pr1.Player = pr2.Player then
+            {
+                Player = pr1.Player
+                Wins = pr1.Wins + pr2.Wins
+                Ties = pr1.Ties + pr2.Ties
+                Losses = pr1.Losses + pr2.Losses
+                PiecesFor = pr1.PiecesFor + pr2.PiecesFor
+                PiecesAgainst = pr1.PiecesAgainst + pr2.PiecesAgainst
+                Time = pr1.Time + pr2.Time
+            }
+        else failwith "Cannot aggregate results of different players"
+
+let playerResultSummary pr =
+    sprintf "%s: W %i, T %i, L %i  (avg. time %.2f)" pr.Player.Name pr.Wins pr.Ties pr.Losses (pr.Time / float (pr.Wins + pr.Ties + pr.Losses))
+
+let oneIf condition =
+    if condition then 1 else 0
+
 type TimedResult =
     {
         Black: ComputerPlayerChoice
@@ -12,6 +41,25 @@ type TimedResult =
         TimeBlack: float
         TimeWhite: float
     }
+    member this.PlayerResults =
+        [|
+            { Player = this.Black
+              Wins = oneIf (this.FinishedGame.Result = Win Black)
+              Ties = oneIf (this.FinishedGame.Result = Tie)
+              Losses = oneIf (this.FinishedGame.Result = Win White)
+              PiecesFor = this.FinishedGame.Board.NumBlack
+              PiecesAgainst = this.FinishedGame.Board.NumWhite
+              Time = this.TimeBlack
+            }
+            { Player = this.White
+              Wins = oneIf (this.FinishedGame.Result = Win White)
+              Ties = oneIf (this.FinishedGame.Result = Tie)
+              Losses = oneIf (this.FinishedGame.Result = Win Black)
+              PiecesFor = this.FinishedGame.Board.NumWhite
+              PiecesAgainst = this.FinishedGame.Board.NumBlack
+              Time = this.TimeWhite
+            }
+        |]
 
 let resultSummary result =
     match result.FinishedGame.Result with

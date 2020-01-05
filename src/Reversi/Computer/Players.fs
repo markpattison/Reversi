@@ -13,7 +13,7 @@ type ComputerPlayerChoice =
         | Random -> "Random"
         | Greedy -> "Greedy"
         | FewestReplies -> "FewestReplies"
-        | Minimax (heuristic, depth) -> sprintf "Minimax, %s heuristic, depth %i" heuristic.Name depth
+        | Minimax (heuristic, depth) -> sprintf "Minimax, depth %i, %s heuristic" depth heuristic.Name
         | MCTS playouts -> sprintf "MCTS, %i playouts per turn" playouts
 
 let create choice =
