@@ -7,14 +7,14 @@ type ComputerPlayerChoice =
     | Greedy
     | FewestReplies
     | Minimax of HeuristicChoice * int
-    | MCTS
+    | MCTS of int
     member this.Name =
         match this with
         | Random -> "Random"
         | Greedy -> "Greedy"
         | FewestReplies -> "FewestReplies"
         | Minimax (heuristic, depth) -> sprintf "Minimax, %s heuristic, depth %i" heuristic.Name depth
-        | MCTS -> "MCTS"
+        | MCTS playouts -> sprintf "MCTS, %i playouts per turn" playouts
 
 let Create choice =
     match choice with
@@ -22,4 +22,4 @@ let Create choice =
     | Greedy -> Greedy.create()
     | FewestReplies -> FewestReplies.create()
     | Minimax (heuristic, depth) -> Minimax.create (createHeuristic heuristic) depth
-    | MCTS -> MCTS.create()
+    | MCTS playouts -> MCTS.create playouts

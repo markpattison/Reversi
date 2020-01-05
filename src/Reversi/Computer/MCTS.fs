@@ -121,7 +121,7 @@ and Node(parent:Node option,random:Random,board:Board) =
                             n)
                         |> Children.Moves
 
-let create() =
+let create playouts =
     let random = Random()
     let mutable current = Node(None,random,Board.startingBoard)
     let mutable moveIndex = 0
@@ -132,7 +132,7 @@ let create() =
         OnMoveSkipped = fun () -> current <- current.ApplyBestMove()
         OpponentSelected = fun selected -> current <- current.ApplyMove selected.Result
         ChooseMove = fun ongoingGame ->
-            for i in 1..100 do
+            for _ in 1 .. playouts do
                 let selected = current.Select()
                 selected.Expand()
                 selected.Playout()

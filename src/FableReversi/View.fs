@@ -20,7 +20,8 @@ let computerPlayers =
         Minimax (Heuristics.Basic, 0)
         Minimax (Heuristics.Basic, 1)
         Minimax (Heuristics.Basic, 2)
-        MCTS
+        MCTS 25
+        MCTS 50
     ]
 
 let toPieceIcon colour =

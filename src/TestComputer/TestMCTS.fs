@@ -11,7 +11,7 @@ let allTests =
             let series =
                 playSeries
                     Players.Random
-                    Players.MCTS
+                    (Players.MCTS 25)
                     1
 
             ()
@@ -21,8 +21,8 @@ let allTests =
             let series =
                 playSeries
                     (Players.Minimax (Heuristics.Basic, 2))
-                    Players.MCTS
-                    2
+                    (Players.MCTS 25)
+                    5
 
             ()
         )
