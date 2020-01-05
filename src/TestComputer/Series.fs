@@ -3,19 +3,6 @@ module FableReversi.TestComputer.Series
 open FableReversi.Reversi.Computer.Players
 open FableReversi.TestComputer.Game
 
-type SeriesResult =
-    {
-        PlayerOne: ComputerPlayerChoice
-        PlayerTwo: ComputerPlayerChoice
-        WinsOne: int
-        WinsTwo: int
-        Ties: int
-        PiecesOne: int
-        PiecesTwo: int
-        AverageTimeOne: float
-        AverageTimeTwo: float
-    }
-
 let seriesSummary pr1 pr2 =
     sprintf "\n%s\n%s\n" (playerResultSummary pr1) (playerResultSummary pr2)
 
