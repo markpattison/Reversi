@@ -32,7 +32,7 @@ type SeriesResult =
     }
 
 let seriesSummary series =
-    sprintf "%s (avg. time %.2f): %i, ties: %i, %s (avg. time %.2f): %i" series.NameOne series.AverageTimeOne series.WinsOne series.Ties series.NameTwo series.AverageTimeTwo series.WinsTwo
+    sprintf "\n%s (avg. time %.2f): %i, ties: %i, %s (avg. time %.2f): %i\n" series.NameOne series.AverageTimeOne series.WinsOne series.Ties series.NameTwo series.AverageTimeTwo series.WinsTwo
 
 let playGame playerBlackChoice playerWhiteChoice board =
 
@@ -68,13 +68,12 @@ let playGame playerBlackChoice playerWhiteChoice board =
     let finishedGame = play board
 
     let gameResult =
-        {
-            NameBlack = playerBlackChoice.Name
+          { NameBlack = playerBlackChoice.Name
             NameWhite = playerWhiteChoice.Name
             FinishedGame = finishedGame
             TimeWhite = float stopwatchWhite.ElapsedMilliseconds / 1000.0
             TimeBlack = float stopwatchBlack.ElapsedMilliseconds / 1000.0
-        }
+          }
     
     printfn "%s" (resultSummary gameResult)
 
@@ -88,8 +87,8 @@ let playSeries playerOneChoice playerTwoChoice gamesPerSide =
 
     let numGames = float (resultsOneAsBlack.Length + resultsTwoAsBlack.Length)
 
-    {
-        NameOne = playerOneChoice.Name
+    let seriesResult =
+      { NameOne = playerOneChoice.Name
         NameTwo = playerTwoChoice.Name
         WinsOne =
             (resultsOneAsBlack |> Seq.where (fun r -> r.FinishedGame.Result = Win Black) |> Seq.length) +
@@ -112,4 +111,8 @@ let playSeries playerOneChoice playerTwoChoice gamesPerSide =
         AverageTimeTwo =
             ((resultsOneAsBlack |> Seq.sumBy (fun r -> r.TimeWhite)) +
              (resultsTwoAsBlack |> Seq.sumBy (fun r -> r.TimeBlack))) / numGames
-    }
+      }
+    
+    printfn "%s" (seriesSummary seriesResult)
+    
+    seriesResult

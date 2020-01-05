@@ -14,7 +14,7 @@ let allTests =
                     Players.MCTS
                     1
 
-            printfn "%s" (seriesSummary series)
+            ()
         )
 
         testCase "BasicHeuristic depth 2 vs. MCTS" (fun _ ->
@@ -24,6 +24,6 @@ let allTests =
                     Players.MCTS
                     2
 
-            printfn "%s" (seriesSummary series)
+            ()
         )
     ]

@@ -14,6 +14,6 @@ let allTests =
                     (Players.Minimax (Heuristics.Basic, 2))
                     5
 
-            printfn "%s" (seriesSummary series)
+            ()
         )
     ]
