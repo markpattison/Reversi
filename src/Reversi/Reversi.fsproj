@@ -6,7 +6,6 @@
   <ItemGroup>
     <Compile Include="Board.fs" />
     <Compile Include="Runner.fs" />
-    <Compile Include="Logger.fs" />
     <Compile Include="Computer\Random.fs" />
     <Compile Include="Computer\Greedy.fs" />
     <Compile Include="Computer\FewestReplies.fs" />

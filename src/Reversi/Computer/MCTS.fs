@@ -121,10 +121,13 @@ and Node(parent:Node option,random:Random,board:Board) =
                             n)
                         |> Children.Moves
 
-let createWithLog (log: Logger) =
+let create() =
     let random = Random()
     let mutable current = Node(None,random,Board.startingBoard)
     let mutable moveIndex = 0
+
+    let logger = ignore //printfn "%s"
+
     {
         OnMoveSkipped = fun () -> current <- current.ApplyBestMove()
         OpponentSelected = fun selected -> current <- current.ApplyMove selected.Result
@@ -136,10 +139,8 @@ let createWithLog (log: Logger) =
 
             moveIndex <- moveIndex + 1
             current <- current.ApplyBestMove()
-            log.Log 0 (sprintf "Move %i: chances: %.3f tries: %d" moveIndex current.Chances (int current.Tries))
+            sprintf "Move %i: chances: %.3f tries: %d" moveIndex current.Chances (int current.Tries) |> logger
 
             let selected = ongoingGame.PossibleMoves |> Array.find (fun m -> m.Result = current.Board)
             selected
     }
-
-let create() = createWithLog (Logger.Create())

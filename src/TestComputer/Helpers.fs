@@ -67,13 +67,18 @@ let playGame playerBlackChoice playerWhiteChoice board =
 
     let finishedGame = play board
 
-    {
-        NameBlack = playerBlackChoice.Name
-        NameWhite = playerWhiteChoice.Name
-        FinishedGame = finishedGame
-        TimeWhite = float stopwatchWhite.ElapsedMilliseconds / 1000.0
-        TimeBlack = float stopwatchBlack.ElapsedMilliseconds / 1000.0
-    }
+    let gameResult =
+        {
+            NameBlack = playerBlackChoice.Name
+            NameWhite = playerWhiteChoice.Name
+            FinishedGame = finishedGame
+            TimeWhite = float stopwatchWhite.ElapsedMilliseconds / 1000.0
+            TimeBlack = float stopwatchBlack.ElapsedMilliseconds / 1000.0
+        }
+    
+    printfn "%s" (resultSummary gameResult)
+
+    gameResult
 
 let playSeries playerOneChoice playerTwoChoice gamesPerSide =
     let resultsOneAsBlack =

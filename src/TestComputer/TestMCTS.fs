@@ -8,30 +8,22 @@ open FableReversi.TestComputer.Helpers
 let allTests =
     testList "MCTS player" [
         testCase "random vs. MCTS" (fun _ ->
-            let logger = Logger.Create()
-
             let series =
                 playSeries
                     Players.Random
                     Players.MCTS
                     1
 
-            seriesSummary series |> logger.Log -1
-
-            logger.Print -1
+            printfn "%s" (seriesSummary series)
         )
 
         testCase "BasicHeuristic depth 2 vs. MCTS" (fun _ ->
-            let logger = Logger.Create()
-
             let series =
                 playSeries
                     (Players.Minimax (Heuristics.Basic, 2))
                     Players.MCTS
                     2
 
-            seriesSummary series |> logger.Log -1
-
-            logger.Print -1
+            printfn "%s" (seriesSummary series)
         )
     ]
