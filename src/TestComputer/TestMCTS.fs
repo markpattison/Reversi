@@ -1,9 +1,8 @@
 module FableReversi.TestComputer.TestMCTS
 
 open Expecto
-open FableReversi.Reversi
 open FableReversi.Reversi.Computer
-open FableReversi.TestComputer.Helpers
+open FableReversi.TestComputer.Series
 
 let allTests =
     testList "MCTS player" [
