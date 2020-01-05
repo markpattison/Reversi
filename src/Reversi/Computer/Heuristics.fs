@@ -13,12 +13,12 @@ let corners board =
 
 let basic (ongoing: OngoingGame) =
     let piecesScore = ongoing.Board.NumBlack - ongoing.Board.NumWhite
-    let movesScore = ongoing.PossibleMoves.Length
+    let movesScore = ongoing.PossibleMoves.Length * if ongoing.Board.NextToMove = Black then 1 else -1
     let cornersScore =
         ongoing.Board
         |> corners
         |> List.sumBy (fun sq ->
-            if sq = Piece (ongoing.Board.NextToMove) then 1
+            if sq = Piece Black then 1
             elif sq = Empty then 0
             else -1)
 
