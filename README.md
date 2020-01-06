@@ -6,7 +6,7 @@ Read the accompanying [blog post](https://markfsharp.wordpress.com/2019/12/16/fa
 
 ## Requirements
 
-* [dotnet SDK](https://www.microsoft.com/net/download/core) 2.2
+* [dotnet SDK](https://www.microsoft.com/net/download/core) 3.1
 * [node.js](https://nodejs.org) with [npm](https://www.npmjs.com/)
 * An F# editor like Visual Studio, Visual Studio Code with [Ionide](http://ionide.io/) or [JetBrains Rider](https://www.jetbrains.com/rider/).
 * [FAKE](https://fake.build/) and [Paket](https://fsprojects.github.io/Paket/) installed as .NET Core Global Tools

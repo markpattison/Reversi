@@ -113,9 +113,8 @@ NUGET
     Fake.Testing.Common (5.19)
       Fake.Core.Trace (>= 5.19)
       FSharp.Core (>= 4.7)
-    FParsec (1.0.3)
-      FSharp.Core (>= 4.2.3)
-      NETStandard.Library (>= 1.6.1)
+    FParsec (1.1)
+      FSharp.Core (>= 4.3.4)
     FSharp.Control.Reactive (4.2)
       FSharp.Core (>= 4.2.3)
       System.Reactive (>= 4.0)
@@ -154,13 +153,11 @@ NUGET
       System.Security.AccessControl (>= 4.7)
       System.Security.Principal.Windows (>= 4.7)
     Mono.Posix.NETStandard (1.0)
-    MSBuild.StructuredLogger (2.0.152)
+    MSBuild.StructuredLogger (2.0.174)
       Microsoft.Build (>= 15.8.166)
       Microsoft.Build.Framework (>= 15.8.166)
       Microsoft.Build.Tasks.Core (>= 15.8.166)
       Microsoft.Build.Utilities.Core (>= 15.8.166)
-    NETStandard.Library (2.0.3)
-      Microsoft.NETCore.Platforms (>= 1.1)
     Newtonsoft.Json (12.0.3)
     NuGet.Common (5.4)
       NuGet.Frameworks (>= 5.4)
@@ -713,7 +710,7 @@ NUGET
 
 GROUP Client
 STORAGE: NONE
-RESTRICTION: == netcoreapp2.2
+RESTRICTION: == netcoreapp3.1
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Fable.Browser.Blob (1.1)
@@ -795,7 +792,7 @@ NUGET
 
 GROUP Test
 STORAGE: NONE
-RESTRICTION: == netcoreapp2.2
+RESTRICTION: == netcoreapp3.1
 NUGET
   remote: https://api.nuget.org/v3/index.json
     Expecto (8.13.1)
