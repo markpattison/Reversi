@@ -13,7 +13,7 @@ let playSeries playerOne playerTwo gamesPerSide =
             (fun i -> if i % 2 = 0 then playGame playerOne playerTwo else playGame playerTwo playerOne)
 
     let playerResults = results |> Array.collect (fun result -> result.PlayerResults)
-    let playerOneResults = playerResults |> Array.filter (fun pr -> pr.Player = playerOne) |> Array.reduce (+)
-    let playerTwoResults = playerResults |> Array.filter (fun pr -> pr.Player = playerTwo) |> Array.reduce (+)
+    let playerOneResults = playerResults |> Array.filter (fun pr -> pr.Player = playerOne) |> Array.sum
+    let playerTwoResults = playerResults |> Array.filter (fun pr -> pr.Player = playerTwo) |> Array.sum
 
     printfn "%s" (seriesSummary playerOneResults playerTwoResults)
