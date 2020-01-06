@@ -12,7 +12,8 @@ let corners board =
     ]
 
 let basic (ongoing: OngoingGame) =
-    let piecesScore = ongoing.Board.NumBlack - ongoing.Board.NumWhite
+    let numBlack, numWhite = Board.countPieces ongoing.Board.Squares
+    let piecesScore = numBlack - numWhite
     let movesScore = ongoing.PossibleMoves.Length * if ongoing.Board.NextToMove = Black then 1 else -1
     let cornersScore =
         ongoing.Board

@@ -14,13 +14,6 @@ type Square =
     | Piece of Colour
     | Empty
 
-[<Struct>]
-type Location =
-    | Location of int * int
-    static member (+) ((Location (x1, y1)), (Location (x2, y2))) = Location (x1 + x2, y1 + y2)
-
-
-
 type GameResult =
     | Win of Colour
     | Tie
@@ -30,15 +23,9 @@ type Board =
     {
         Squares: Square[]
         NextToMove: Colour
-        NumBlack: int
-        NumWhite: int
     }
 
     with
-        member this.Status =
-            if this.NumBlack > this.NumWhite then
-                Win Black
-            elif this.NumWhite > this.NumBlack then Win White else Tie
 
         override this.ToString() =
             let squareAt x y = this.Squares.[x + y * 8]
@@ -63,14 +50,14 @@ type Board =
 
 type PossibleMove =
     {
-        MoveLocation: Location
-        Flips: Location []
+        X: int
+        Y: int
+        Flips: (int * int) []
         Result: Board
     }
 
     with
         override this.ToString() =
-            let lx, ly = match this.MoveLocation with Location(x,y) -> x,y
             let squareAt x y = this.Result.Squares.[x + y * 8]
             let mutable s = "   "
 
@@ -81,7 +68,7 @@ type PossibleMove =
             for x in 0..7 do
                 s <- s + " " + string x + " "
                 for y in 0..7 do
-                    if x = lx && y = ly then
+                    if x = this.X && y = this.Y then
                         s <- s + " *"
                     else
                         match squareAt x y with
@@ -125,10 +112,9 @@ module Board =
 
     let private directions =
         [| (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) |]
-        |> Array.map Location
 
 
-    let private countPieces squares =
+    let countPieces squares =
         let mutable black = 0
         let mutable white = 0
 
@@ -136,16 +122,12 @@ module Board =
             if sq = Piece Black then black <- black + 1
             if sq = Piece White then white <- white + 1)
 
-        (black, white)
+        black, white
 
-    let create squares nextToMove =
-        let numBlack, numWhite = countPieces squares
-        {
-            Squares = squares
-            NextToMove = nextToMove
-            NumBlack = numBlack
-            NumWhite = numWhite
-        }
+    let create squares nextToMove = {
+        Squares = squares
+        NextToMove = nextToMove
+    }
 
     let startingBoard =
         let squares = Array.create 64 Empty
@@ -156,70 +138,72 @@ module Board =
 
         create squares Black
 
-    let private indexOf (Location (x, y)) =
-        x + y * 8
+    let inline squareAt board x y = board.Squares.[x + y * 8]
 
-    let squareAt board location = board.Squares.[indexOf location]
-
-    let private isOnBoard (Location (x, y)) =
+    let inline private isOnBoard x y  =
         x >= 0 && x < 8 && y >= 0 && y < 8
 
-    let private wouldFlip' board colour location direction =
-        let mutable location' = location + direction
+    let private wouldFlip' board colour x y dx dy =
+        let mutable lx = x + dx
+        let mutable ly = y + dy
         let mutable foundEmpty = false
         let mutable foundColour = false
 
         let flips =
-            [| while (isOnBoard location' && not foundEmpty && not foundColour) do
-                match squareAt board location' with
+            [| while isOnBoard lx ly && not foundEmpty && not foundColour do
+                match squareAt board lx ly with
                 | Empty -> foundEmpty <- true
                 | Piece c when c = colour -> foundColour <- true
-                | _ -> yield location'
-                location' <- location' + direction
+                | _ -> yield lx,ly
+                lx <- lx + dx
+                ly <- ly + dy
             |]
 
         if foundColour then flips else [||]
 
 
-    let private wouldFlip board colour location direction =
-        let mutable location' = location + direction
+    let private wouldFlip board colour x y dx dy =
+        let mutable lx = x + dx
+        let mutable ly = y + dy
         let mutable foundEmpty = false
         let mutable foundColour = false
         let mutable foundFlip = false
 
-        while (isOnBoard location' && not foundEmpty && not foundColour) do
-            match squareAt board location' with
+        while isOnBoard lx ly && not foundEmpty && not foundColour do
+            match squareAt board lx ly with
             | Empty -> foundEmpty <- true
             | Piece c when c = colour -> foundColour <- true
             | _ -> foundFlip <- true
-            location' <- location' + direction
+
+            lx <- lx + dx
+            ly <- ly + dy
 
         foundColour && foundFlip
 
-    let isPossibleMove' board colour location =
-        if squareAt board location = Empty then
-            let flips = directions |> Array.collect (wouldFlip' board colour location)
+    let isPossibleMove' board colour x y =
+        if squareAt board x y = Empty then
+            let flips = directions |> Array.collect (fun (dx,dy) -> wouldFlip' board colour x y dx dy)
             if Array.isEmpty flips then None else Some flips
         else
             None
 
-    let isPossibleMove board colour location =
-        if squareAt board location = Empty then
-            directions |> Array.exists (wouldFlip board colour location)
+    let isPossibleMove board colour x y =
+        if squareAt board x y = Empty then
+            directions |> Array.exists (fun (dx,dy) -> wouldFlip board colour x y dx dy)
         else
             false
 
-    let private moveResult board moveLocation flips =
+    let private moveResult board x y flips =
         let newSquares = Array.copy board.Squares
         let opposite = board.NextToMove.opposite
 
-        flips |> Array.iter (fun flip ->
-            match squareAt board flip with
+        flips |> Array.iter (fun (fx,fy) ->
+            match squareAt board fx fy with
             | Empty -> failwith "Tried to flip empty square"
-            | Piece c when c = opposite -> newSquares.[indexOf flip] <- Piece board.NextToMove
+            | Piece c when c = opposite -> newSquares.[fx + fy * 8] <- Piece board.NextToMove
             | _ -> failwith "Tried to flip same colour")
 
-        newSquares.[indexOf moveLocation] <- Piece board.NextToMove
+        newSquares.[x + y * 8] <- Piece board.NextToMove
 
         create newSquares opposite
 
@@ -227,9 +211,8 @@ module Board =
         [|
             for x in 0..7 do
                 for y in 0..7 do
-                    let moveLocation = Location (x, y)
-                    if isPossibleMove board board.NextToMove moveLocation then
-                        yield moveLocation
+                    if isPossibleMove board board.NextToMove x y then
+                        yield x,y
         |]
 
 
@@ -237,17 +220,16 @@ module Board =
         [|
             for x in 0..7 do
                 for y in 0..7 do
-                    let moveLocation = Location (x, y)
-                    match isPossibleMove' board board.NextToMove moveLocation with
+                    match isPossibleMove' board board.NextToMove x y with
                     | Some flips ->
-                        yield { MoveLocation = moveLocation; Flips = flips; Result = moveResult board moveLocation flips }
+                        yield { X = x; Y = y; Flips = flips; Result = moveResult board x y flips }
                     | None -> ()
         |]
 
-    let applyMove moveLocation board =
-        match isPossibleMove' board board.NextToMove moveLocation with
+    let applyMove x y board =
+        match isPossibleMove' board board.NextToMove x y with
         | Some flips ->
-            { MoveLocation = moveLocation; Flips = flips; Result = moveResult board moveLocation flips }
+            { X = x; Y = y; Flips = flips; Result = moveResult board x y flips }
         | None ->
             failwithf "move is invalid"
 
@@ -256,9 +238,15 @@ module Board =
         let mutable found = false
         for x in 0..7 do
             for y in 0..7 do
-                found <- found || isPossibleMove board opposite (Location (x, y))
+                found <- found || isPossibleMove board opposite x y
 
         found
+
+    let getStatus board =
+        let numBlack, numWhite = countPieces board.Squares
+        if numBlack > numWhite then
+            Win Black
+        elif numWhite > numBlack then Win White else Tie
 
     let toGameInfo board =
         let possibleMoves = getPossibleMoves' board
@@ -268,7 +256,7 @@ module Board =
                 if anyPossibleMovesByOpposite board then
                     OngoingSkipMove board
                 else
-                    Finished { Board = board; Result = board.Status }
+                    Finished { Board = board; Result = getStatus board }
             else
                 Ongoing { Board = board; PossibleMoves = possibleMoves }
 

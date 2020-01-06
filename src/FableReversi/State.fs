@@ -13,7 +13,7 @@ let getPossibleMoves gameInfo =
 
 let getPossibleMoveLocations gameInfo =
     getPossibleMoves gameInfo
-    |> Array.map (fun pm -> pm.MoveLocation)
+    |> Array.map (fun pm -> pm.X,pm.Y)
 
 let toBoardView gameInfo =
     let possibleMoveLocations = getPossibleMoveLocations gameInfo
@@ -22,13 +22,13 @@ let toBoardView gameInfo =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = Location (x, y)
+                let location = (x, y)
                 let view =
                     if Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
-                (location, Board.squareAt gameInfo.Board location, view))) }
+                (location, Board.squareAt gameInfo.Board x y, view))) }
 
 let toBoardViewPossibleMoveHover gameInfo possibleMove =
     let possibleMoveLocations = getPossibleMoveLocations gameInfo
@@ -37,9 +37,9 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = Location (x, y)
+                let location = (x, y)
                 let view =
-                    if location = possibleMove.MoveLocation then
+                    if x = possibleMove.X && y = possibleMove.Y then
                         PossibleMoveHover
                     elif Array.contains location possibleMove.Flips then
                         WouldFlip
@@ -47,7 +47,7 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
                         PossibleMove
                     else
                         Plain
-                (location, Board.squareAt gameInfo.Board location, view))) }
+                (location, Board.squareAt gameInfo.Board x y, view))) }
 
 let createPlayer playerChoice =
     match playerChoice with
@@ -83,23 +83,23 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
 
     match msg with
 
-    | Hover location ->
-        match Array.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
+    | Hover (x,y) ->
+        match Array.tryFind (fun possibleMove -> possibleMove.X = x && possibleMove.Y = y) possibleMoves with
         | Some possibleMove ->
             let boardView = toBoardViewPossibleMoveHover model.GameInfo possibleMove
             { model with BoardView = boardView }, Cmd.none
 
         | None -> { model with BoardView = toBoardView model.GameInfo }, Cmd.none
 
-    | Click location ->
-        match Array.tryFind (fun possibleMove -> possibleMove.MoveLocation = location) possibleMoves with
+    | Click (x,y) ->
+        match Array.tryFind (fun possibleMove -> possibleMove.X = x && possibleMove.Y = y) possibleMoves with
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
 
     | GameAction action ->
         let newModel =
             match action, model.GameInfo.State with
-            | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.MoveLocation = possibleMove.MoveLocation) possibleMoves ->
+            | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.X = possibleMove.X && pm.Y = possibleMove.Y) possibleMoves ->
                 if model.GameInfo.Board.NextToMove = White then
                     match model.PlayerBlack with
                     | _,Computer p -> p.OpponentSelected possibleMove
