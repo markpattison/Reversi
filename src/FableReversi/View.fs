@@ -151,6 +151,8 @@ let gameContent model dispatch =
 
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
 
+    let numBlack, numWhite = Board.countPieces gameInfo.Board.Squares
+
     let showSkipButton =
         match humanPlaying, gameInfo.State with
         | true, OngoingSkipMove _ -> true
@@ -161,10 +163,10 @@ let gameContent model dispatch =
           [ showBoard dispatch humanPlaying model.BoardView ]
         Column.column []
             [ p []
-                    [ sprintf "Black (%s): %i " (fst model.PlayerBlack) (gameInfo.Board.NumBlack) |> str
+                    [ sprintf "Black (%s): %i " (fst model.PlayerBlack) numBlack |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               p []
-                    [ sprintf "White (%s): %i " (fst model.PlayerWhite) (gameInfo.Board.NumWhite) |> str
+                    [ sprintf "White (%s): %i " (fst model.PlayerWhite) numWhite |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               if showSkipButton then
                   br []

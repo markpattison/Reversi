@@ -79,14 +79,15 @@ and Node(parent:Node option,random:Random,board:Board) =
                         let opposite = currentBoard.NextToMove.opposite
                         currentBoard <- { currentBoard with NextToMove = opposite }
                     else
-                        match currentBoard.Status with
+                        match Board.getStatus currentBoard with
                         | Win White -> this.BackProp 1.
                         | Win Black -> this.BackProp -1.
                         | Tie -> this.BackProp 0.5
                         isDone <- true
                 else
                     let choice = random.Next(0, moves.Length)
-                    let move = Board.applyMove moves.[choice] currentBoard
+                    let mx,my =  moves.[choice]
+                    let move = Board.applyMove mx my currentBoard
                     currentBoard <- move.Result
 
         member this.Select() =
@@ -114,8 +115,8 @@ and Node(parent:Node option,random:Random,board:Board) =
                         Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
                     else
                         moves
-                        |> Array.map (fun pos ->
-                            let m = Board.applyMove pos board
+                        |> Array.map (fun (x,y) ->
+                            let m = Board.applyMove x y board
                             let n = Node(Some this,random,m.Result)
                             n.Playout()
                             n)

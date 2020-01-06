@@ -4,10 +4,11 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
 let valueFinished (finished: FinishedGame) =
+    let numBlack, numWhite = Board.countPieces finished.Board.Squares
     match finished.Result with
     | Tie -> 0.0
-    | Win Black -> 1000.0 + float (finished.Board.NumBlack - finished.Board.NumWhite)
-    | Win White -> -1000.0 + float (finished.Board.NumBlack - finished.Board.NumWhite)
+    | Win Black -> 1000.0 + float (numBlack - numWhite)
+    | Win White -> -1000.0 + float (numBlack - numWhite)
 
 let minimax heuristic maxDepth board =
     let mutable heuristicEvaluations = 0

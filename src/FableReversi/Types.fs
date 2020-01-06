@@ -11,7 +11,7 @@ type SquareView =
     | Plain
 
 type BoardView =
-    { SquareViews: (Location * Square * SquareView) list list }
+    { SquareViews: ((int * int) * Square * SquareView) list list }
 
 type Player =
     | Human
@@ -48,8 +48,8 @@ type LobbyMsg =
     | Start
 
 type GameMsg =
-    | Hover of Location
-    | Click of Location
+    | Hover of int * int
+    | Click of int * int
     | GameAction of GameAction
     | RequestComputerMoveIfNeeded
     | Restart
