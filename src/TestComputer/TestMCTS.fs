@@ -25,4 +25,14 @@ let allTests =
 
             ()
         )
+
+        testCase "MCTS 200 vs. MCTS 25" (fun _ ->
+            let series =
+                playSeries
+                    (Players.MCTS 200)
+                    (Players.MCTS 25)
+                    5
+
+            ()
+        )
     ]

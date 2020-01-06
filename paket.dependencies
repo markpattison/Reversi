@@ -1,6 +1,6 @@
 group Client
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp2.2
+    framework: netcoreapp3.1
     storage: none
 
     nuget Fable.Core ~> 3
@@ -16,7 +16,7 @@ group Client
 
 group Test
     source https://api.nuget.org/v3/index.json
-    framework: netcoreapp2.2
+    framework: netcoreapp3.1
     storage: none
 
     nuget FSharp.Core
