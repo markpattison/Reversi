@@ -25,7 +25,6 @@ let allTests =
             let moves = getPossibleMoves board
             let pos = moves.[0]
             let board = (applyMove pos board).Result
-
             let moves = getPossibleMoves board
             Expect.equal moves.Length 3 "3 moves for white"
 

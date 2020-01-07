@@ -49,7 +49,7 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
                 let view =
                     if possibleMove.Pos = location then
                         PossibleMoveHover
-                    elif Array.contains location possibleMove.Flips then
+                    elif Bitwise.isSet location possibleMove.Flips then
                         WouldFlip
                     elif Array.contains location possibleMoveLocations then
                         PossibleMove

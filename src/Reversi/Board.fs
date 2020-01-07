@@ -3,6 +3,8 @@ namespace FableReversi.Reversi
 module Bitwise =
     let inline pos (x:int) (y:int) = x + 8 * y
 
+    let inline getXY (pos:int) = pos % 8, pos / 8
+
     let inline setStone (pos:int) (board:uint64) =
         board ||| (1UL <<< pos)
 
@@ -67,7 +69,7 @@ type Board =
 type PossibleMove =
     {
         Pos: int
-        Flips: int []
+        Flips: uint64
         Result: Board
     }
 
@@ -128,7 +130,6 @@ module Board =
 
     let private directions =
         [| (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) |]
-        |> Array.map (fun (x,y) -> Bitwise.pos x y)
 
     let startingBoard = {
         WhiteSquares =
@@ -144,42 +145,47 @@ module Board =
         NextToMove = Black
     }
 
-    let inline private isOnBoard pos  =
-        pos >= 0 && pos < 64
+    let inline private isOnBoard x y =
+        x >= 0 && x < 8 && y >= 0 && y < 8
 
-    let private wouldFlip' (board:Board) colour pos delta =
-        let mutable pos = pos + delta
+    let private wouldFlip' (board:Board) colour pos dx dy =
+        let x,y = Bitwise.getXY pos
+        let mutable lx = x + dx
+        let mutable ly = y + dy
         let mutable foundEmpty = false
         let mutable foundColour = false
+        let mutable flips = 0UL
 
-        let flips =
-            [| while isOnBoard pos && not foundEmpty && not foundColour do
-                if Bitwise.isSet pos board.WhiteSquares then
-                    if colour = White then
-                        foundColour <- true
-                    else
-                        yield pos
-                elif Bitwise.isSet pos board.BlackSquares then
-                    if colour = Black then
-                        foundColour <- true
-                    else
-                        yield pos
+        while isOnBoard lx ly && not foundEmpty && not foundColour do
+            let pos = Bitwise.pos lx ly
+            if Bitwise.isSet pos board.WhiteSquares then
+                if colour = White then
+                    foundColour <- true
                 else
-                    foundEmpty <- true
+                    flips <- Bitwise.setStone pos flips
+            elif Bitwise.isSet pos board.BlackSquares then
+                if colour = Black then
+                    foundColour <- true
+                else
+                    flips <- Bitwise.setStone pos flips
+            else
+                foundEmpty <- true
 
-                pos <- pos + delta
-            |]
+            lx <- lx + dx
+            ly <- ly + dy
 
-        if foundColour then flips else [||]
+        if foundColour then flips else 0UL
 
-
-    let private wouldFlip (board:Board) colour pos delta =
-        let mutable pos = pos + delta
+    let private wouldFlip (board:Board) colour pos dx dy =
+        let x,y = Bitwise.getXY pos
+        let mutable lx = x + dx
+        let mutable ly = y + dy
         let mutable foundEmpty = false
         let mutable foundColour = false
         let mutable foundFlip = false
 
-        while isOnBoard pos && not foundEmpty && not foundColour do
+        while isOnBoard lx ly && not foundEmpty && not foundColour do
+            let pos = Bitwise.pos lx ly
             if Bitwise.isSet pos board.WhiteSquares then
                 if colour = White then
                     foundColour <- true
@@ -193,37 +199,27 @@ module Board =
             else
                 foundEmpty <- true
 
-            pos <- pos + delta
+            lx <- lx + dx
+            ly <- ly + dy
 
         foundColour && foundFlip
 
     let getFlips board colour pos =
         if not (Bitwise.isSet pos board.WhiteSquares || Bitwise.isSet pos board.BlackSquares) then
-            let flips = directions |> Array.collect (wouldFlip' board colour pos)
-            if Array.isEmpty flips then None else Some flips
+            let flips = directions |> Array.sumBy (fun (dx,dy) -> wouldFlip' board colour pos dx dy)
+            flips
         else
-            None
+            0UL
 
     let isPossibleMove board colour pos =
         if not (Bitwise.isSet pos board.WhiteSquares || Bitwise.isSet pos board.BlackSquares) then
-            directions |> Array.exists (wouldFlip board colour pos)
+            directions |> Array.exists (fun (dx,dy) -> wouldFlip board colour pos dx dy)
         else
             false
 
-    let private moveResult board pos flips =
-        let mutable whiteSquares = board.WhiteSquares
-        let mutable blackSquares = board.BlackSquares
-
-        flips
-        |> Array.iter (fun pos ->
-            if Bitwise.isSet pos whiteSquares then
-                whiteSquares <- Bitwise.removeStone pos whiteSquares
-                blackSquares <- Bitwise.setStone pos blackSquares
-            elif Bitwise.isSet pos blackSquares then
-                whiteSquares <- Bitwise.setStone pos whiteSquares
-                blackSquares <- Bitwise.removeStone pos blackSquares
-            else
-                failwith "Tried to flip empty square")
+    let private moveResult board pos (flips:uint64) =
+        let mutable whiteSquares = board.WhiteSquares ^^^ flips
+        let mutable blackSquares = board.BlackSquares ^^^ flips
 
         match board.NextToMove with
         | White ->
@@ -247,17 +243,16 @@ module Board =
 
     let getPossibleMovesAndFlips board = [|
         for pos in 0..63 do
-            match getFlips board board.NextToMove pos with
-            | Some flips ->
+            let flips = getFlips board board.NextToMove pos
+            if flips <> 0UL then
                 yield { Pos = pos; Flips = flips; Result = moveResult board pos flips }
-            | None -> ()
      |]
 
     let applyMove pos board =
-        match getFlips board board.NextToMove pos with
-        | Some flips ->
+        let flips = getFlips board board.NextToMove pos
+        if flips <> 0UL then
             { Pos = pos; Flips = flips; Result = moveResult board pos flips }
-        | None ->
+        else
             failwithf "move is invalid"
 
     let anyPossibleMovesByOpposite board =
@@ -273,7 +268,10 @@ module Board =
         let numWhite = Bitwise.countStones board.WhiteSquares
         if numBlack > numWhite then
             Win Black
-        elif numWhite > numBlack then Win White else Tie
+        elif numWhite > numBlack then
+            Win White
+        else
+            Tie
 
     let toGameInfo board =
         let possibleMoves = getPossibleMovesAndFlips board

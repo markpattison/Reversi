@@ -79,10 +79,15 @@ and Node(parent:Node option,random:Random,board:Board) =
                         let opposite = currentBoard.NextToMove.Opposite
                         currentBoard <- { currentBoard with NextToMove = opposite }
                     else
-                        match Board.getStatus currentBoard with
-                        | Win White -> this.BackProp 1.
-                        | Win Black -> this.BackProp -1.
-                        | Tie -> this.BackProp 0.5
+                        let numBlack = Bitwise.countStones board.BlackSquares
+                        let numWhite = Bitwise.countStones board.WhiteSquares
+                        if numBlack > numWhite then
+                            this.BackProp -1.
+                        elif numWhite > numBlack then
+                            this.BackProp 1.
+                        else
+                            this.BackProp 0.5
+
                         isDone <- true
                 else
                     let choice = random.Next(0, moves.Length)
@@ -109,15 +114,14 @@ and Node(parent:Node option,random:Random,board:Board) =
         member this.Expand() =
             if !children = Children.Unknown then
                 children :=
-                    let moves = Board.getPossibleMoves board
+                    let moves = Board.getPossibleMovesAndFlips board
                     if Array.isEmpty moves then
                         let opposite = board.NextToMove.Opposite
                         Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
                     else
                         moves
-                        |> Array.map (fun pos ->
-                            let m = Board.applyMove pos board
-                            let n = Node(Some this,random,m.Result)
+                        |> Array.map (fun move ->
+                            let n = Node(Some this,random,move.Result)
                             n.Playout()
                             n)
                         |> Children.Moves
