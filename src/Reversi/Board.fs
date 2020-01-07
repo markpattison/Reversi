@@ -68,7 +68,7 @@ type PossibleMove =
     {
         X: int
         Y: int
-        Flips: (int * int) []
+        Flips: int []
         Result: Board
     }
 
@@ -164,12 +164,12 @@ module Board =
                     if colour = White then
                         foundColour <- true
                     else
-                        yield lx,ly
+                        yield pos
                 elif Bitwise.isSet pos board.BlackSquares then
                     if colour = Black then
                         foundColour <- true
                     else
-                        yield lx,ly
+                        yield pos
                 else
                     foundEmpty <- true
 
@@ -228,8 +228,7 @@ module Board =
         let mutable blackSquares = board.BlackSquares
 
         flips
-        |> Array.iter (fun (fx,fy) ->
-            let pos = Bitwise.pos fx fy
+        |> Array.iter (fun pos ->
             if Bitwise.isSet pos whiteSquares then
                 whiteSquares <- Bitwise.removeStone pos whiteSquares
                 blackSquares <- Bitwise.setStone pos blackSquares
