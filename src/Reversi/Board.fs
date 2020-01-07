@@ -1,34 +1,50 @@
 namespace FableReversi.Reversi
 
+module Bitwise =
+    let inline pos (x:int) (y:int) = x + 8 * y
+
+    let inline setStone (x:int) (y:int) (board:uint64) =
+        board ||| (1UL <<< (pos x y))
+
+    let inline removeStone (x:int) (y:int) (board:uint64) =
+        board &&& (~~~ (1UL <<< (pos x y)))
+
+    let inline isSet (x:int) (y:int) (board:uint64) =
+        ((board >>> (pos x y)) &&& 1UL) = 1UL
+
+    let countStones (board:uint64) =
+        let mutable count = 0UL
+        let mutable board = board
+        while board > 0UL do
+            count <- count + (board &&& 1UL)
+            board <- board >>> 1
+
+        count
+
 [<Struct>]
 type Colour =
     | Black
     | White
-    member this.opposite =
+    member this.Opposite =
         match this with
         | Black -> White
         | White -> Black
 
-[<Struct>]
-type Square =
-    | Piece of Colour
-    | Empty
 
 type GameResult =
     | Win of Colour
     | Tie
 
-
 type Board =
     {
-        Squares: Square[]
+        WhiteSquares: uint64
+        BlackSquares: uint64
         NextToMove: Colour
     }
 
     with
 
         override this.ToString() =
-            let squareAt x y = this.Squares.[x + y * 8]
             let mutable s = "   "
 
             for y in 0..7 do
@@ -38,13 +54,12 @@ type Board =
             for x in 0..7 do
                 s <- s + " " + string x + " "
                 for y in 0..7 do
-                    match squareAt x y with
-                    | Empty ->
-                        s <- s + "  "
-                    | Piece Black ->
+                    if Bitwise.isSet x y this.BlackSquares then
                         s <- s + " B"
-                    | Piece White ->
+                    elif Bitwise.isSet x y this.WhiteSquares then
                         s <- s + " W"
+                    else
+                        s <- s + "  "
                 s <- s + "\n"
             s
 
@@ -58,7 +73,6 @@ type PossibleMove =
 
     with
         override this.ToString() =
-            let squareAt x y = this.Result.Squares.[x + y * 8]
             let mutable s = "   "
 
             for y in 0..7 do
@@ -71,13 +85,13 @@ type PossibleMove =
                     if x = this.X && y = this.Y then
                         s <- s + " *"
                     else
-                        match squareAt x y with
-                        | Empty ->
-                            s <- s + "  "
-                        | Piece Black ->
+                        if Bitwise.isSet x y this.Result.BlackSquares then
                             s <- s + " B"
-                        | Piece White ->
+                        elif Bitwise.isSet x y this.Result.WhiteSquares then
                             s <- s + " W"
+                        else
+                            s <- s + "  "
+
                 s <- s + "\n"
             s
 
@@ -114,36 +128,30 @@ module Board =
         [| (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) |]
 
 
-    let countPieces squares =
-        let mutable black = 0
-        let mutable white = 0
 
-        squares |> Array.iter (fun sq ->
-            if sq = Piece Black then black <- black + 1
-            if sq = Piece White then white <- white + 1)
-
-        black, white
-
-    let create squares nextToMove = {
-        Squares = squares
+    let inline create blackSquares whiteSquares nextToMove = {
+        WhiteSquares = whiteSquares
+        BlackSquares = blackSquares
         NextToMove = nextToMove
     }
 
     let startingBoard =
-        let squares = Array.create 64 Empty
-        squares.[27] <- Piece Black
-        squares.[28] <- Piece White
-        squares.[35] <- Piece White
-        squares.[36] <- Piece Black
+        let blackSquares =
+            0UL
+            |> Bitwise.setStone 3 3
+            |> Bitwise.setStone 4 4
 
-        create squares Black
+        let whiteSquares =
+            0UL
+            |> Bitwise.setStone 4 3
+            |> Bitwise.setStone 3 4
 
-    let inline squareAt board x y = board.Squares.[x + y * 8]
+        create blackSquares whiteSquares Black
 
     let inline private isOnBoard x y  =
         x >= 0 && x < 8 && y >= 0 && y < 8
 
-    let private wouldFlip' board colour x y dx dy =
+    let private wouldFlip' (board:Board) colour x y dx dy =
         let mutable lx = x + dx
         let mutable ly = y + dy
         let mutable foundEmpty = false
@@ -151,10 +159,19 @@ module Board =
 
         let flips =
             [| while isOnBoard lx ly && not foundEmpty && not foundColour do
-                match squareAt board lx ly with
-                | Empty -> foundEmpty <- true
-                | Piece c when c = colour -> foundColour <- true
-                | _ -> yield lx,ly
+                if Bitwise.isSet lx ly board.WhiteSquares then
+                    if colour = White then
+                        foundColour <- true
+                    else
+                        yield lx,ly
+                elif Bitwise.isSet lx ly board.BlackSquares then
+                    if colour = Black then
+                        foundColour <- true
+                    else
+                        yield lx,ly
+                else
+                    foundEmpty <- true
+
                 lx <- lx + dx
                 ly <- ly + dy
             |]
@@ -162,7 +179,7 @@ module Board =
         if foundColour then flips else [||]
 
 
-    let private wouldFlip board colour x y dx dy =
+    let private wouldFlip (board:Board) colour x y dx dy =
         let mutable lx = x + dx
         let mutable ly = y + dy
         let mutable foundEmpty = false
@@ -170,10 +187,18 @@ module Board =
         let mutable foundFlip = false
 
         while isOnBoard lx ly && not foundEmpty && not foundColour do
-            match squareAt board lx ly with
-            | Empty -> foundEmpty <- true
-            | Piece c when c = colour -> foundColour <- true
-            | _ -> foundFlip <- true
+            if Bitwise.isSet lx ly board.WhiteSquares then
+                if colour = White then
+                    foundColour <- true
+                else
+                    foundFlip <- true
+            elif Bitwise.isSet lx ly board.BlackSquares then
+                if colour = Black then
+                    foundColour <- true
+                else
+                    foundFlip <- true
+            else
+                foundEmpty <- true
 
             lx <- lx + dx
             ly <- ly + dy
@@ -181,31 +206,43 @@ module Board =
         foundColour && foundFlip
 
     let isPossibleMove' board colour x y =
-        if squareAt board x y = Empty then
+        if not (Bitwise.isSet x y board.WhiteSquares || Bitwise.isSet x y board.BlackSquares) then
             let flips = directions |> Array.collect (fun (dx,dy) -> wouldFlip' board colour x y dx dy)
             if Array.isEmpty flips then None else Some flips
         else
             None
 
     let isPossibleMove board colour x y =
-        if squareAt board x y = Empty then
+        if not (Bitwise.isSet x y board.WhiteSquares || Bitwise.isSet x y board.BlackSquares) then
             directions |> Array.exists (fun (dx,dy) -> wouldFlip board colour x y dx dy)
         else
             false
 
     let private moveResult board x y flips =
-        let newSquares = Array.copy board.Squares
-        let opposite = board.NextToMove.opposite
+        let opposite = board.NextToMove.Opposite
+        let mutable whiteSquares = board.WhiteSquares
+        let mutable blackSquares = board.BlackSquares
 
-        flips |> Array.iter (fun (fx,fy) ->
-            match squareAt board fx fy with
-            | Empty -> failwith "Tried to flip empty square"
-            | Piece c when c = opposite -> newSquares.[fx + fy * 8] <- Piece board.NextToMove
-            | _ -> failwith "Tried to flip same colour")
+        flips
+        |> Array.iter (fun (fx,fy) ->
+            if Bitwise.isSet fx fy whiteSquares then
+                whiteSquares <- Bitwise.removeStone fx fy whiteSquares
+                blackSquares <- Bitwise.setStone fx fy blackSquares
+            elif Bitwise.isSet fx fy blackSquares then
+                whiteSquares <- Bitwise.setStone fx fy whiteSquares
+                blackSquares <- Bitwise.removeStone fx fy blackSquares
+            else
+                failwith "Tried to flip empty square")
 
-        newSquares.[x + y * 8] <- Piece board.NextToMove
+        match board.NextToMove with
+        | White ->
+            whiteSquares <- Bitwise.setStone x y whiteSquares
+            blackSquares <- Bitwise.removeStone x y blackSquares
+        | Black ->
+            blackSquares <- Bitwise.setStone x y blackSquares
+            whiteSquares <- Bitwise.removeStone x y whiteSquares
 
-        create newSquares opposite
+        create blackSquares whiteSquares opposite
 
     let getPossibleMoves board =
         [|
@@ -234,7 +271,7 @@ module Board =
             failwithf "move is invalid"
 
     let anyPossibleMovesByOpposite board =
-        let opposite = board.NextToMove.opposite
+        let opposite = board.NextToMove.Opposite
         let mutable found = false
         for x in 0..7 do
             for y in 0..7 do
@@ -243,7 +280,8 @@ module Board =
         found
 
     let getStatus board =
-        let numBlack, numWhite = countPieces board.Squares
+        let numBlack = Bitwise.countStones board.BlackSquares
+        let numWhite = Bitwise.countStones board.WhiteSquares
         if numBlack > numWhite then
             Win Black
         elif numWhite > numBlack then Win White else Tie

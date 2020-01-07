@@ -76,7 +76,7 @@ and Node(parent:Node option,random:Random,board:Board) =
                 let moves = Board.getPossibleMoves currentBoard
                 if Array.isEmpty moves then
                     if Board.anyPossibleMovesByOpposite currentBoard then
-                        let opposite = currentBoard.NextToMove.opposite
+                        let opposite = currentBoard.NextToMove.Opposite
                         currentBoard <- { currentBoard with NextToMove = opposite }
                     else
                         match Board.getStatus currentBoard with
@@ -111,7 +111,7 @@ and Node(parent:Node option,random:Random,board:Board) =
                 children :=
                     let moves = Board.getPossibleMoves board
                     if Array.isEmpty moves then
-                        let opposite = board.NextToMove.opposite
+                        let opposite = board.NextToMove.Opposite
                         Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
                     else
                         moves

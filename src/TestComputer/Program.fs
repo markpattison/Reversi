@@ -5,6 +5,7 @@ open Expecto
 [<EntryPoint>]
 let main args =
     testList "All tests" [
+        TestBoard.allTests
         TestMinimax.allTests
         TestMCTS.allTests
     ]
