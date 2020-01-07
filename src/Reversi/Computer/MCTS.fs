@@ -86,8 +86,8 @@ and Node(parent:Node option,random:Random,board:Board) =
                         isDone <- true
                 else
                     let choice = random.Next(0, moves.Length)
-                    let mx,my =  moves.[choice]
-                    let move = Board.applyMove mx my currentBoard
+                    let m = moves.[choice]
+                    let move = Board.applyMove m currentBoard
                     currentBoard <- move.Result
 
         member this.Select() =
@@ -115,8 +115,8 @@ and Node(parent:Node option,random:Random,board:Board) =
                         Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
                     else
                         moves
-                        |> Array.map (fun (x,y) ->
-                            let m = Board.applyMove x y board
+                        |> Array.map (fun pos ->
+                            let m = Board.applyMove pos board
                             let n = Node(Some this,random,m.Result)
                             n.Playout()
                             n)

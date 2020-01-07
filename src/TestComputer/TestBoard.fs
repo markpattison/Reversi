@@ -23,8 +23,8 @@ let allTests =
             let board = startingBoard
 
             let moves = getPossibleMoves board
-            let x,y = moves.[0]
-            let board = (applyMove x y board).Result
+            let pos = moves.[0]
+            let board = (applyMove pos board).Result
 
             let moves = getPossibleMoves board
             Expect.equal moves.Length 3 "3 moves for white"
@@ -35,8 +35,8 @@ let allTests =
             Expect.equal numBlack 4UL "4 black stones after first move"
             Expect.equal numWhite 1UL "1 white stone after first move"
 
-            for (x,y) in moves do
-                let move = applyMove x y board
+            for pos in moves do
+                let move = applyMove pos board
                 let board = move.Result
                 let numBlack = countStones board.BlackSquares
                 let numWhite = countStones board.WhiteSquares

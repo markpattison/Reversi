@@ -66,8 +66,7 @@ type Board =
 
 type PossibleMove =
     {
-        X: int
-        Y: int
+        Pos: int
         Flips: int []
         Result: Board
     }
@@ -83,7 +82,8 @@ type PossibleMove =
             for x in 0..7 do
                 s <- s + " " + string x + " "
                 for y in 0..7 do
-                    if x = this.X && y = this.Y then
+                    let pos = Bitwise.pos x y
+                    if this.Pos = pos then
                         s <- s + " *"
                     else
                         let pos = Bitwise.pos x y
@@ -128,38 +128,32 @@ module Board =
 
     let private directions =
         [| (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) |]
+        |> Array.map (fun (x,y) -> Bitwise.pos x y)
 
-    let inline create blackSquares whiteSquares nextToMove = {
-        WhiteSquares = whiteSquares
-        BlackSquares = blackSquares
-        NextToMove = nextToMove
-    }
-
-    let startingBoard =
-        let blackSquares =
-            0UL
-            |> Bitwise.setStone (Bitwise.pos 3 3)
-            |> Bitwise.setStone (Bitwise.pos 4 4)
-
-        let whiteSquares =
+    let startingBoard = {
+        WhiteSquares =
             0UL
             |> Bitwise.setStone (Bitwise.pos 4 3)
             |> Bitwise.setStone (Bitwise.pos 3 4)
 
-        create blackSquares whiteSquares Black
+        BlackSquares =
+            0UL
+            |> Bitwise.setStone (Bitwise.pos 3 3)
+            |> Bitwise.setStone (Bitwise.pos 4 4)
 
-    let inline private isOnBoard x y  =
-        x >= 0 && x < 8 && y >= 0 && y < 8
+        NextToMove = Black
+    }
 
-    let private wouldFlip' (board:Board) colour x y dx dy =
-        let mutable lx = x + dx
-        let mutable ly = y + dy
+    let inline private isOnBoard pos  =
+        pos >= 0 && pos < 64
+
+    let private wouldFlip' (board:Board) colour pos delta =
+        let mutable pos = pos + delta
         let mutable foundEmpty = false
         let mutable foundColour = false
 
         let flips =
-            [| while isOnBoard lx ly && not foundEmpty && not foundColour do
-                let pos = Bitwise.pos lx ly
+            [| while isOnBoard pos && not foundEmpty && not foundColour do
                 if Bitwise.isSet pos board.WhiteSquares then
                     if colour = White then
                         foundColour <- true
@@ -173,22 +167,19 @@ module Board =
                 else
                     foundEmpty <- true
 
-                lx <- lx + dx
-                ly <- ly + dy
+                pos <- pos + delta
             |]
 
         if foundColour then flips else [||]
 
 
-    let private wouldFlip (board:Board) colour x y dx dy =
-        let mutable lx = x + dx
-        let mutable ly = y + dy
+    let private wouldFlip (board:Board) colour pos delta =
+        let mutable pos = pos + delta
         let mutable foundEmpty = false
         let mutable foundColour = false
         let mutable foundFlip = false
 
-        while isOnBoard lx ly && not foundEmpty && not foundColour do
-            let pos = Bitwise.pos lx ly
+        while isOnBoard pos && not foundEmpty && not foundColour do
             if Bitwise.isSet pos board.WhiteSquares then
                 if colour = White then
                     foundColour <- true
@@ -202,28 +193,24 @@ module Board =
             else
                 foundEmpty <- true
 
-            lx <- lx + dx
-            ly <- ly + dy
+            pos <- pos + delta
 
         foundColour && foundFlip
 
-    let isPossibleMove' board colour x y =
-        let pos = Bitwise.pos x y
+    let getFlips board colour pos =
         if not (Bitwise.isSet pos board.WhiteSquares || Bitwise.isSet pos board.BlackSquares) then
-            let flips = directions |> Array.collect (fun (dx,dy) -> wouldFlip' board colour x y dx dy)
+            let flips = directions |> Array.collect (wouldFlip' board colour pos)
             if Array.isEmpty flips then None else Some flips
         else
             None
 
-    let isPossibleMove board colour x y =
-        let pos = Bitwise.pos x y
+    let isPossibleMove board colour pos =
         if not (Bitwise.isSet pos board.WhiteSquares || Bitwise.isSet pos board.BlackSquares) then
-            directions |> Array.exists (fun (dx,dy) -> wouldFlip board colour x y dx dy)
+            directions |> Array.exists (wouldFlip board colour pos)
         else
             false
 
-    let private moveResult board x y flips =
-        let opposite = board.NextToMove.Opposite
+    let private moveResult board pos flips =
         let mutable whiteSquares = board.WhiteSquares
         let mutable blackSquares = board.BlackSquares
 
@@ -238,7 +225,6 @@ module Board =
             else
                 failwith "Tried to flip empty square")
 
-        let pos = Bitwise.pos x y
         match board.NextToMove with
         | White ->
             whiteSquares <- Bitwise.setStone pos whiteSquares
@@ -247,40 +233,38 @@ module Board =
             blackSquares <- Bitwise.setStone pos blackSquares
             whiteSquares <- Bitwise.removeStone pos whiteSquares
 
-        create blackSquares whiteSquares opposite
 
-    let getPossibleMoves board =
-        [|
-            for x in 0..7 do
-                for y in 0..7 do
-                    if isPossibleMove board board.NextToMove x y then
-                        yield x,y
-        |]
+        { WhiteSquares = whiteSquares
+          BlackSquares = blackSquares
+          NextToMove = board.NextToMove.Opposite }
 
 
-    let getPossibleMoves' board =
-        [|
-            for x in 0..7 do
-                for y in 0..7 do
-                    match isPossibleMove' board board.NextToMove x y with
-                    | Some flips ->
-                        yield { X = x; Y = y; Flips = flips; Result = moveResult board x y flips }
-                    | None -> ()
-        |]
+    let getPossibleMoves board = [|
+        for pos in 0..63 do
+            if isPossibleMove board board.NextToMove pos then
+                yield pos
+    |]
 
-    let applyMove x y board =
-        match isPossibleMove' board board.NextToMove x y with
+    let getPossibleMovesAndFlips board = [|
+        for pos in 0..63 do
+            match getFlips board board.NextToMove pos with
+            | Some flips ->
+                yield { Pos = pos; Flips = flips; Result = moveResult board pos flips }
+            | None -> ()
+     |]
+
+    let applyMove pos board =
+        match getFlips board board.NextToMove pos with
         | Some flips ->
-            { X = x; Y = y; Flips = flips; Result = moveResult board x y flips }
+            { Pos = pos; Flips = flips; Result = moveResult board pos flips }
         | None ->
             failwithf "move is invalid"
 
     let anyPossibleMovesByOpposite board =
         let opposite = board.NextToMove.Opposite
         let mutable found = false
-        for x in 0..7 do
-            for y in 0..7 do
-                found <- found || isPossibleMove board opposite x y
+        for pos in 0..63 do
+            found <- found || isPossibleMove board opposite pos
 
         found
 
@@ -292,7 +276,7 @@ module Board =
         elif numWhite > numBlack then Win White else Tie
 
     let toGameInfo board =
-        let possibleMoves = getPossibleMoves' board
+        let possibleMoves = getPossibleMovesAndFlips board
 
         let state =
             if Array.isEmpty possibleMoves then

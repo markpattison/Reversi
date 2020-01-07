@@ -4,6 +4,10 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 open FableReversi.Reversi.Computer.Players
 
+type Square =
+    | Empty
+    | Piece of Colour
+
 type SquareView =
     | PossibleMove
     | PossibleMoveHover
@@ -26,6 +30,7 @@ type GameModel =
       BoardView: BoardView
       PlayerBlack: string * Player
       PlayerWhite: string * Player }
+
     member this.CurrentPlayer =
         match this.GameInfo.Board.NextToMove with
         | Black -> this.PlayerBlack |> snd

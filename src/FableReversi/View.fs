@@ -21,7 +21,7 @@ let computerPlayers =
         Minimax (Heuristics.Basic, 1)
         Minimax (Heuristics.Basic, 2)
         MCTS 25
-        MCTS 50
+        MCTS 200
     ]
 
 let toPieceIcon colour =
@@ -93,7 +93,7 @@ let lobbyContent lobbyOptions dispatch =
           br []
           button "Start game" (fun _ -> dispatch Start)]
 
-let showSquare dispatch humanPlaying (location, square, view) =
+let showSquare dispatch humanPlaying (location, square:Square, view) =
     let cellProps : IHTMLProp list =
         match view with
         | Plain -> plainCellProps
@@ -151,7 +151,8 @@ let gameContent model dispatch =
 
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
 
-    let numBlack, numWhite = Board.countPieces gameInfo.Board.Squares
+    let numBlack = Bitwise.countStones gameInfo.Board.BlackSquares
+    let numWhite = Bitwise.countStones gameInfo.Board.WhiteSquares
 
     let showSkipButton =
         match humanPlaying, gameInfo.State with
@@ -187,7 +188,6 @@ let content model dispatch =
     | Playing gameModel -> gameContent gameModel (GameMsg >> dispatch)
 
 let view (model : Model) (dispatch : Msg -> unit) =
-
     div []
         [ Navbar.navbar [ Navbar.Color IsPrimary ]
             [ Navbar.Item.div [ ]
