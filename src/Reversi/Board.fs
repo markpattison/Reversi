@@ -150,7 +150,7 @@ module Board =
     let inline private isOnBoard x y =
         x >= 0 && x < 8 && y >= 0 && y < 8
 
-    let private wouldFlip' (board:Board) colour pos dx dy =
+    let private findFlips (board:Board) colour pos dx dy =
         let x, y = Bitboard.getXY pos
 
         let mutable lx = x + dx
@@ -207,7 +207,7 @@ module Board =
 
     let getFlips board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            let flips = directions |> Array.sumBy (fun (dx,dy) -> wouldFlip' board colour pos dx dy)
+            let flips = directions |> Array.sumBy (fun (dx,dy) -> findFlips board colour pos dx dy)
             flips
         else
             0UL
