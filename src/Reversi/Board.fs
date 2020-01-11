@@ -7,22 +7,21 @@ module Bitboard =
 
     let inline getXY (pos:int) = pos % 8, pos / 8
 
-    let inline setStone (pos:int) (board:Bitboard) =
+    let inline set (pos:int) (board:Bitboard) =
         board ||| (1UL <<< pos)
 
-    let inline removeStone (pos:int) (board:Bitboard) =
+    let inline unset (pos:int) (board:Bitboard) =
         board &&& (~~~ (1UL <<< pos))
 
     let inline isSet (pos:int) (board:Bitboard) =
         ((board >>> pos ) &&& 1UL) = 1UL
 
-    let countStones (board:Bitboard) =
+    let count (board:Bitboard) =
         let mutable count = 0
         let mutable board = board
         while board > 0UL do
             count <- count + int (board &&& 1UL)
             board <- board >>> 1
-
         count
 
 [<Struct>]
@@ -33,7 +32,6 @@ type Colour =
         match this with
         | Black -> White
         | White -> Black
-
 
 type GameResult =
     | Win of Colour
@@ -135,13 +133,13 @@ module Board =
     let startingBoard = {
         WhiteSquares =
             0UL
-            |> Bitboard.setStone (Bitboard.pos 4 3)
-            |> Bitboard.setStone (Bitboard.pos 3 4)
+            |> Bitboard.set (Bitboard.pos 4 3)
+            |> Bitboard.set (Bitboard.pos 3 4)
 
         BlackSquares =
             0UL
-            |> Bitboard.setStone (Bitboard.pos 3 3)
-            |> Bitboard.setStone (Bitboard.pos 4 4)
+            |> Bitboard.set (Bitboard.pos 3 3)
+            |> Bitboard.set (Bitboard.pos 4 4)
 
         NextToMove = Black
     }
@@ -168,7 +166,7 @@ module Board =
             if Bitboard.isSet pos mySquares then
                 foundMyColour <- true
             elif Bitboard.isSet pos oppSquares then
-                flips <- Bitboard.setStone pos flips
+                flips <- Bitboard.set pos flips
             else
                 foundEmpty <- true
 
@@ -223,11 +221,11 @@ module Board =
 
         match board.NextToMove with
         | White ->
-            whiteSquares <- Bitboard.setStone pos whiteSquares
-            blackSquares <- Bitboard.removeStone pos blackSquares
+            whiteSquares <- Bitboard.set pos whiteSquares
+            blackSquares <- Bitboard.unset pos blackSquares
         | Black ->
-            blackSquares <- Bitboard.setStone pos blackSquares
-            whiteSquares <- Bitboard.removeStone pos whiteSquares
+            blackSquares <- Bitboard.set pos blackSquares
+            whiteSquares <- Bitboard.unset pos whiteSquares
 
 
         { WhiteSquares = whiteSquares
@@ -264,8 +262,8 @@ module Board =
         found
 
     let getStatus board =
-        let numBlack = Bitboard.countStones board.BlackSquares
-        let numWhite = Bitboard.countStones board.WhiteSquares
+        let numBlack = Bitboard.count board.BlackSquares
+        let numWhite = Bitboard.count board.WhiteSquares
         if numBlack > numWhite then
             Win Black
         elif numWhite > numBlack then

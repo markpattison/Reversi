@@ -4,8 +4,8 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
 let basic (ongoing: OngoingGame) =
-    let numBlack = Bitboard.countStones ongoing.Board.BlackSquares
-    let numWhite = Bitboard.countStones ongoing.Board.WhiteSquares
+    let numBlack = Bitboard.count ongoing.Board.BlackSquares
+    let numWhite = Bitboard.count ongoing.Board.WhiteSquares
     let piecesScore = numBlack - numWhite
     let movesScore =
         ongoing.PossibleMoves.Length * if ongoing.Board.NextToMove = Black then 1 else -1
