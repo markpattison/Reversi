@@ -15,10 +15,10 @@ module Bitwise =
         ((board >>> pos ) &&& 1UL) = 1UL
 
     let countStones (board:uint64) =
-        let mutable count = 0UL
+        let mutable count = 0
         let mutable board = board
         while board > 0UL do
-            count <- count + (board &&& 1UL)
+            count <- count + int (board &&& 1UL)
             board <- board >>> 1
 
         count
