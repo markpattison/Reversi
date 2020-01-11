@@ -22,16 +22,16 @@ let toBoardView gameInfo =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = Bitwise.pos x y
+                let location = Bitboard.pos x y
                 let view =
                     if Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
                 let square =
-                    if Bitwise.isSet location gameInfo.Board.BlackSquares then
+                    if Bitboard.isSet location gameInfo.Board.BlackSquares then
                         Piece Black
-                    elif Bitwise.isSet location gameInfo.Board.WhiteSquares then
+                    elif Bitboard.isSet location gameInfo.Board.WhiteSquares then
                         Piece White
                     else
                         Empty
@@ -45,20 +45,20 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = Bitwise.pos x y
+                let location = Bitboard.pos x y
                 let view =
                     if possibleMove.Pos = location then
                         PossibleMoveHover
-                    elif Bitwise.isSet location possibleMove.Flips then
+                    elif Bitboard.isSet location possibleMove.Flips then
                         WouldFlip
                     elif Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
                 let square =
-                    if Bitwise.isSet location gameInfo.Board.BlackSquares then
+                    if Bitboard.isSet location gameInfo.Board.BlackSquares then
                         Piece Black
-                    elif Bitwise.isSet location gameInfo.Board.WhiteSquares then
+                    elif Bitboard.isSet location gameInfo.Board.WhiteSquares then
                         Piece White
                     else
                         Empty
@@ -99,7 +99,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
     match msg with
 
     | Hover (x,y) ->
-        let location = Bitwise.pos x y
+        let location = Bitboard.pos x y
         match Array.tryFind (fun possibleMove -> possibleMove.Pos = location) possibleMoves with
         | Some possibleMove ->
             let boardView = toBoardViewPossibleMoveHover model.GameInfo possibleMove
@@ -108,7 +108,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
         | None -> { model with BoardView = toBoardView model.GameInfo }, Cmd.none
 
     | Click (x,y) ->
-        let location = Bitwise.pos x y
+        let location = Bitboard.pos x y
         match Array.tryFind (fun possibleMove -> possibleMove.Pos = location) possibleMoves with
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none

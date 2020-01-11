@@ -3,7 +3,7 @@ module FableReversi.TestComputer.TestBoard
 open Expecto
 open FableReversi.Reversi.Board
 open FableReversi.Reversi
-open FableReversi.Reversi.Bitwise
+open FableReversi.Reversi.Bitboard
 
 let allTests =
     testList "Boards and Moves" [
