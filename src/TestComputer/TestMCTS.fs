@@ -16,21 +16,21 @@ let allTests =
             ()
         )
 
-        testCase "BasicHeuristic depth 2 vs. MCTS" (fun _ ->
+        testCase "BasicHeuristic depth 2 vs. MCTS 15" (fun _ ->
             let series =
                 playSeries
                     (Players.Minimax (Heuristics.Basic, 2))
-                    (Players.MCTS 25)
+                    (Players.MCTS 15)
                     5
 
             ()
         )
 
-        testCase "MCTS 200 vs. MCTS 25" (fun _ ->
+        testCase "BasicHeuristic depth 3 vs. MCTS 200" (fun _ ->
             let series =
                 playSeries
+                    (Players.Minimax (Heuristics.Basic, 3))
                     (Players.MCTS 200)
-                    (Players.MCTS 25)
                     5
 
             ()
