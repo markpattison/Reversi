@@ -4,7 +4,8 @@ open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
 let valueFinished (finished: FinishedGame) =
-    let numBlack, numWhite = Board.countPieces finished.Board.Squares
+    let numBlack = Bitwise.countStones finished.Board.BlackSquares
+    let numWhite = Bitwise.countStones finished.Board.WhiteSquares
     match finished.Result with
     | Tie -> 0.0
     | Win Black -> 1000.0 + float (numBlack - numWhite)

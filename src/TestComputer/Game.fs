@@ -42,32 +42,35 @@ type TimedResult =
         TimeWhite: float
     }
     member this.PlayerResults =
-        let numBlack, numWhite = Board.countPieces this.FinishedGame.Board.Squares
+        let numBlack = Bitwise.countStones this.FinishedGame.Board.BlackSquares
+        let numWhite = Bitwise.countStones this.FinishedGame.Board.WhiteSquares
         [|
             { Player = this.Black
               Wins = oneIf (this.FinishedGame.Result = Win Black)
               Ties = oneIf (this.FinishedGame.Result = Tie)
               Losses = oneIf (this.FinishedGame.Result = Win White)
-              PiecesFor = numBlack
-              PiecesAgainst = numWhite
+              PiecesFor = int numBlack
+              PiecesAgainst = int numWhite
               Time = this.TimeBlack
             }
             { Player = this.White
               Wins = oneIf (this.FinishedGame.Result = Win White)
               Ties = oneIf (this.FinishedGame.Result = Tie)
               Losses = oneIf (this.FinishedGame.Result = Win Black)
-              PiecesFor = numWhite
-              PiecesAgainst = numBlack
+              PiecesFor = int numWhite
+              PiecesAgainst = int numBlack
               Time = this.TimeWhite
             }
         |]
 
 let resultSummary result =
-    let numBlack, numWhite = Board.countPieces result.FinishedGame.Board.Squares
+    let numBlack = Bitwise.countStones result.FinishedGame.Board.BlackSquares
+    let numWhite = Bitwise.countStones result.FinishedGame.Board.WhiteSquares
+
     match result.FinishedGame.Result with
     | Tie -> sprintf "Tie! (%s: %.2fs, %s: %.2fs)" result.Black.Name result.TimeBlack result.White.Name result.TimeWhite
-    | Win Black -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.Black.Name result.White.Name numBlack numWhite result.Black.Name result.TimeBlack result.White.Name result.TimeWhite
-    | Win White -> sprintf "%s beats %s %2i-%2i (%s: %.2fs, %s: %.2fs)" result.White.Name result.Black.Name numWhite numBlack result.White.Name result.TimeWhite result.Black.Name result.TimeBlack
+    | Win Black -> sprintf "%s beats %s %d-%d (%s: %.2fs, %s: %.2fs)" result.Black.Name result.White.Name numBlack numWhite result.Black.Name result.TimeBlack result.White.Name result.TimeWhite
+    | Win White -> sprintf "%s beats %s %d-%d (%s: %.2fs, %s: %.2fs)" result.White.Name result.Black.Name numWhite numBlack result.White.Name result.TimeWhite result.Black.Name result.TimeBlack
 
 let playGame black white =
 
@@ -86,7 +89,6 @@ let playGame black white =
             playerBlack.OnMoveSkipped()
             Actions.skipMove gameInfo |> play
         | Ongoing ongoing ->
-
             if ongoing.Board.NextToMove = Black then
                 stopwatchBlack.Start()
                 let move = playerBlack.ChooseMove ongoing

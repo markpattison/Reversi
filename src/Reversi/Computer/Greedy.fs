@@ -11,7 +11,7 @@ let create() =
         ChooseMove = fun ongoingGame ->
             let movesWithMostFlips =
                 ongoingGame.PossibleMoves
-                |> Array.groupBy (fun pm -> pm.Flips.Length)
+                |> Array.groupBy (fun pm -> Bitwise.countStones pm.Flips)
                 |> Array.maxBy fst
                 |> snd
             let choice = random.Next(0, movesWithMostFlips.Length)

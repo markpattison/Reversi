@@ -13,7 +13,7 @@ let getPossibleMoves gameInfo =
 
 let getPossibleMoveLocations gameInfo =
     getPossibleMoves gameInfo
-    |> Array.map (fun pm -> pm.X,pm.Y)
+    |> Array.map (fun pm -> pm.Pos)
 
 let toBoardView gameInfo =
     let possibleMoveLocations = getPossibleMoveLocations gameInfo
@@ -22,13 +22,21 @@ let toBoardView gameInfo =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = (x, y)
+                let location = Bitwise.pos x y
                 let view =
                     if Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
-                (location, Board.squareAt gameInfo.Board x y, view))) }
+                let square =
+                    if Bitwise.isSet location gameInfo.Board.BlackSquares then
+                        Piece Black
+                    elif Bitwise.isSet location gameInfo.Board.WhiteSquares then
+                        Piece White
+                    else
+                        Empty
+
+                ((x,y), square, view))) }
 
 let toBoardViewPossibleMoveHover gameInfo possibleMove =
     let possibleMoveLocations = getPossibleMoveLocations gameInfo
@@ -37,17 +45,24 @@ let toBoardViewPossibleMoveHover gameInfo possibleMove =
         List.init 8 (fun i ->
             let y = 7 - i
             List.init 8 (fun x ->
-                let location = (x, y)
+                let location = Bitwise.pos x y
                 let view =
-                    if x = possibleMove.X && y = possibleMove.Y then
+                    if possibleMove.Pos = location then
                         PossibleMoveHover
-                    elif Array.contains location possibleMove.Flips then
+                    elif Bitwise.isSet location possibleMove.Flips then
                         WouldFlip
                     elif Array.contains location possibleMoveLocations then
                         PossibleMove
                     else
                         Plain
-                (location, Board.squareAt gameInfo.Board x y, view))) }
+                let square =
+                    if Bitwise.isSet location gameInfo.Board.BlackSquares then
+                        Piece Black
+                    elif Bitwise.isSet location gameInfo.Board.WhiteSquares then
+                        Piece White
+                    else
+                        Empty
+                ((x,y), square, view))) }
 
 let createPlayer playerChoice =
     match playerChoice with
@@ -84,7 +99,8 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
     match msg with
 
     | Hover (x,y) ->
-        match Array.tryFind (fun possibleMove -> possibleMove.X = x && possibleMove.Y = y) possibleMoves with
+        let location = Bitwise.pos x y
+        match Array.tryFind (fun possibleMove -> possibleMove.Pos = location) possibleMoves with
         | Some possibleMove ->
             let boardView = toBoardViewPossibleMoveHover model.GameInfo possibleMove
             { model with BoardView = boardView }, Cmd.none
@@ -92,14 +108,15 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
         | None -> { model with BoardView = toBoardView model.GameInfo }, Cmd.none
 
     | Click (x,y) ->
-        match Array.tryFind (fun possibleMove -> possibleMove.X = x && possibleMove.Y = y) possibleMoves with
+        let location = Bitwise.pos x y
+        match Array.tryFind (fun possibleMove -> possibleMove.Pos = location) possibleMoves with
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
 
     | GameAction action ->
         let newModel =
             match action, model.GameInfo.State with
-            | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.X = possibleMove.X && pm.Y = possibleMove.Y) possibleMoves ->
+            | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.Pos = possibleMove.Pos) possibleMoves ->
                 if model.GameInfo.Board.NextToMove = White then
                     match model.PlayerBlack with
                     | _,Computer p -> p.OpponentSelected possibleMove
