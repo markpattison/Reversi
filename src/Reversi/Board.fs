@@ -45,7 +45,6 @@ type Board =
     }
 
     with
-
         override this.ToString() =
             let mutable s = "   "
 
@@ -149,53 +148,52 @@ module Board =
         x >= 0 && x < 8 && y >= 0 && y < 8
 
     let private wouldFlip' (board:Board) colour pos dx dy =
-        let x,y = Bitwise.getXY pos
+        let x, y = Bitwise.getXY pos
+
         let mutable lx = x + dx
         let mutable ly = y + dy
         let mutable foundEmpty = false
-        let mutable foundColour = false
+        let mutable foundMyColour = false
         let mutable flips = 0UL
 
-        while isOnBoard lx ly && not foundEmpty && not foundColour do
+        let mySquares, oppSquares =
+            match colour with
+            | Black -> board.BlackSquares, board.WhiteSquares
+            | White -> board.WhiteSquares, board.BlackSquares
+
+        while isOnBoard lx ly && not foundEmpty && not foundMyColour do
             let pos = Bitwise.pos lx ly
-            if Bitwise.isSet pos board.WhiteSquares then
-                if colour = White then
-                    foundColour <- true
-                else
-                    flips <- Bitwise.setStone pos flips
-            elif Bitwise.isSet pos board.BlackSquares then
-                if colour = Black then
-                    foundColour <- true
-                else
-                    flips <- Bitwise.setStone pos flips
+            if Bitwise.isSet pos mySquares then
+                foundMyColour <- true
+            elif Bitwise.isSet pos oppSquares then
+                flips <- Bitwise.setStone pos flips
             else
                 foundEmpty <- true
 
             lx <- lx + dx
             ly <- ly + dy
 
-        if foundColour then flips else 0UL
+        if foundMyColour then flips else 0UL
 
     let private wouldFlip (board:Board) colour pos dx dy =
-        let x,y = Bitwise.getXY pos
+        let x, y = Bitwise.getXY pos
         let mutable lx = x + dx
         let mutable ly = y + dy
         let mutable foundEmpty = false
         let mutable foundColour = false
         let mutable foundFlip = false
 
+        let mySquares, oppSquares =
+            match colour with
+            | Black -> board.BlackSquares, board.WhiteSquares
+            | White -> board.WhiteSquares, board.BlackSquares
+
         while isOnBoard lx ly && not foundEmpty && not foundColour do
             let pos = Bitwise.pos lx ly
-            if Bitwise.isSet pos board.WhiteSquares then
-                if colour = White then
-                    foundColour <- true
-                else
-                    foundFlip <- true
-            elif Bitwise.isSet pos board.BlackSquares then
-                if colour = Black then
-                    foundColour <- true
-                else
-                    foundFlip <- true
+            if Bitwise.isSet pos mySquares then
+                foundColour <- true
+            elif Bitwise.isSet pos oppSquares then
+                foundFlip <- true
             else
                 foundEmpty <- true
 
