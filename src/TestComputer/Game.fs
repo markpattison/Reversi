@@ -42,8 +42,7 @@ type TimedResult =
         TimeWhite: float
     }
     member this.PlayerResults =
-        let numBlack = Bitboard.count this.FinishedGame.Board.BlackSquares
-        let numWhite = Bitboard.count this.FinishedGame.Board.WhiteSquares
+        let numBlack, numWhite = Board.countPieces this.FinishedGame.Board
         [|
             { Player = this.Black
               Wins = oneIf (this.FinishedGame.Result = Win Black)
@@ -64,8 +63,7 @@ type TimedResult =
         |]
 
 let resultSummary result =
-    let numBlack = Bitboard.count result.FinishedGame.Board.BlackSquares
-    let numWhite = Bitboard.count result.FinishedGame.Board.WhiteSquares
+    let numBlack, numWhite = Board.countPieces result.FinishedGame.Board
 
     match result.FinishedGame.Result with
     | Tie -> sprintf "Tie! (%s: %.2fs, %s: %.2fs)" result.Black.Name result.TimeBlack result.White.Name result.TimeWhite

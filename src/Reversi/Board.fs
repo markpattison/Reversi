@@ -144,6 +144,9 @@ module Board =
         NextToMove = Black
     }
 
+    let countPieces board =
+        Bitboard.count board.BlackSquares, Bitboard.count board.WhiteSquares
+
     let inline private isOnBoard x y =
         x >= 0 && x < 8 && y >= 0 && y < 8
 
@@ -262,8 +265,7 @@ module Board =
         found
 
     let getStatus board =
-        let numBlack = Bitboard.count board.BlackSquares
-        let numWhite = Bitboard.count board.WhiteSquares
+        let numBlack, numWhite = countPieces board
         if numBlack > numWhite then
             Win Black
         elif numWhite > numBlack then

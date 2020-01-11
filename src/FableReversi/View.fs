@@ -151,9 +151,8 @@ let gameContent model dispatch =
 
     let humanPlaying = match model.CurrentPlayer with | Human -> true | _ -> false
 
-    let numBlack = Bitboard.count gameInfo.Board.BlackSquares
-    let numWhite = Bitboard.count gameInfo.Board.WhiteSquares
-
+    let numBlack, numWhite = Board.countPieces gameInfo.Board
+    
     let showSkipButton =
         match humanPlaying, gameInfo.State with
         | true, OngoingSkipMove _ -> true

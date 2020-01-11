@@ -11,8 +11,7 @@ let allTests =
             let moves = getPossibleMoves board
             Expect.equal moves.Length 4 "4 moves at start"
 
-            let numBlack = Bitboard.count board.BlackSquares
-            let numWhite = Bitboard.count board.WhiteSquares
+            let numBlack, numWhite = countPieces board
 
             Expect.equal numBlack 2 "2 black stones at start"
             Expect.equal numWhite 2 "2 white stones at start"
@@ -27,8 +26,7 @@ let allTests =
             let moves = getPossibleMoves board
             Expect.equal moves.Length 3 "3 moves for white"
 
-            let numBlack = Bitboard.count board.BlackSquares
-            let numWhite = Bitboard.count board.WhiteSquares
+            let numBlack, numWhite = countPieces board
 
             Expect.equal numBlack 4 "4 black stones after first move"
             Expect.equal numWhite 1 "1 white stone after first move"
@@ -36,8 +34,7 @@ let allTests =
             for pos in moves do
                 let move = applyMove pos board
                 let board = move.Result
-                let numBlack = Bitboard.count board.BlackSquares
-                let numWhite = Bitboard.count board.WhiteSquares
+                let numBlack, numWhite = countPieces board
 
                 Expect.equal numBlack 3 "3 black stones after second move"
                 Expect.equal numWhite 3 "3 white stones after second move"

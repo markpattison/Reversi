@@ -79,8 +79,7 @@ and Node(parent:Node option,random:Random,board:Board) =
                         let opposite = currentBoard.NextToMove.Opposite
                         currentBoard <- { currentBoard with NextToMove = opposite }
                     else
-                        let numBlack = Bitboard.count currentBoard.BlackSquares
-                        let numWhite = Bitboard.count currentBoard.WhiteSquares
+                        let numBlack, numWhite = Board.countPieces currentBoard
                         if numBlack > numWhite then
                             this.BackProp -1.
                         elif numWhite > numBlack then
