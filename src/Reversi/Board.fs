@@ -127,8 +127,16 @@ type GameInfo =
 
 module Board =
 
-    let private directions =
-        [| (1, 0); (1, 1); (0, 1); (-1, 1); (-1, 0); (-1, -1); (0, -1); (1, -1) |]
+    let private directionsAndMaxSquares x y =
+        [| ( 1,  0, 7 - x)
+           ( 1,  1, min (7 - x) (7 - y))
+           ( 0,  1, 7 - y)
+           (-1,  1, min x (7 - y))
+           (-1,  0, x)
+           (-1, -1, min x y)
+           ( 0, -1, y)
+           ( 1, -1, min (7 - x) y)
+        |]
 
     let startingBoard = {
         WhiteSquares =
@@ -147,74 +155,78 @@ module Board =
     let countPieces board =
         Bitboard.count board.BlackSquares, Bitboard.count board.WhiteSquares
 
-    let inline private isOnBoard x y =
-        x >= 0 && x < 8 && y >= 0 && y < 8
+    let private findFlips (board:Board) colour pos (dx, dy, maxSquares) =
+        let mutable squaresToTry = maxSquares
 
-    let private findFlips (board:Board) colour pos dx dy =
-        let x, y = Bitboard.getXY pos
+        if squaresToTry < 2 then
+            0UL
+        else
+            let direction = dx + 8 * dy
+            let mutable tryPos = pos + direction
+            let mutable foundEmpty = false
+            let mutable foundMyColour = false
+            let mutable flips = 0UL
 
-        let mutable lx = x + dx
-        let mutable ly = y + dy
-        let mutable foundEmpty = false
-        let mutable foundMyColour = false
-        let mutable flips = 0UL
+            let mySquares, oppSquares =
+                match colour with
+                | Black -> board.BlackSquares, board.WhiteSquares
+                | White -> board.WhiteSquares, board.BlackSquares
 
-        let mySquares, oppSquares =
-            match colour with
-            | Black -> board.BlackSquares, board.WhiteSquares
-            | White -> board.WhiteSquares, board.BlackSquares
+            while squaresToTry > 0 && not foundEmpty && not foundMyColour do
+                if Bitboard.isSet tryPos mySquares then
+                    foundMyColour <- true
+                elif Bitboard.isSet tryPos oppSquares then
+                    flips <- Bitboard.set tryPos flips
+                else
+                    foundEmpty <- true
 
-        while isOnBoard lx ly && not foundEmpty && not foundMyColour do
-            let pos = Bitboard.pos lx ly
-            if Bitboard.isSet pos mySquares then
-                foundMyColour <- true
-            elif Bitboard.isSet pos oppSquares then
-                flips <- Bitboard.set pos flips
-            else
-                foundEmpty <- true
+                tryPos <- tryPos + direction
+                squaresToTry <- squaresToTry - 1
 
-            lx <- lx + dx
-            ly <- ly + dy
+            if foundMyColour then flips else 0UL
 
-        if foundMyColour then flips else 0UL
+    let private wouldFlip (board:Board) colour pos (dx, dy, maxSquares) =
+        let mutable squaresToTry = maxSquares
 
-    let private wouldFlip (board:Board) colour pos dx dy =
-        let x, y = Bitboard.getXY pos
-        let mutable lx = x + dx
-        let mutable ly = y + dy
-        let mutable foundEmpty = false
-        let mutable foundColour = false
-        let mutable foundFlip = false
+        if squaresToTry < 2 then
+            false
+        else
+            let direction = dx + 8 * dy
+            let mutable tryPos = pos + direction
+            let mutable foundEmpty = false
+            let mutable foundColour = false
+            let mutable foundFlip = false
 
-        let mySquares, oppSquares =
-            match colour with
-            | Black -> board.BlackSquares, board.WhiteSquares
-            | White -> board.WhiteSquares, board.BlackSquares
+            let mySquares, oppSquares =
+                match colour with
+                | Black -> board.BlackSquares, board.WhiteSquares
+                | White -> board.WhiteSquares, board.BlackSquares
 
-        while isOnBoard lx ly && not foundEmpty && not foundColour do
-            let pos = Bitboard.pos lx ly
-            if Bitboard.isSet pos mySquares then
-                foundColour <- true
-            elif Bitboard.isSet pos oppSquares then
-                foundFlip <- true
-            else
-                foundEmpty <- true
+            while squaresToTry > 0 && not foundEmpty && not foundColour do
+                if Bitboard.isSet tryPos mySquares then
+                    foundColour <- true
+                elif Bitboard.isSet tryPos oppSquares then
+                    foundFlip <- true
+                else
+                    foundEmpty <- true
 
-            lx <- lx + dx
-            ly <- ly + dy
+                tryPos <- tryPos + direction
+                squaresToTry <- squaresToTry - 1
 
-        foundColour && foundFlip
+            foundColour && foundFlip
 
     let getFlips board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            let flips = directions |> Array.sumBy (fun (dx,dy) -> findFlips board colour pos dx dy)
+            let x, y = Bitboard.getXY pos
+            let flips = directionsAndMaxSquares x y |> Array.sumBy (fun d -> findFlips board colour pos d)
             flips
         else
             0UL
 
     let isPossibleMove board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            directions |> Array.exists (fun (dx,dy) -> wouldFlip board colour pos dx dy)
+            let x, y = Bitboard.getXY pos
+            directionsAndMaxSquares x y |> Array.exists (fun d -> wouldFlip board colour pos d)
         else
             false
 
@@ -230,11 +242,9 @@ module Board =
             blackSquares <- Bitboard.set pos blackSquares
             whiteSquares <- Bitboard.unset pos whiteSquares
 
-
         { WhiteSquares = whiteSquares
           BlackSquares = blackSquares
           NextToMove = board.NextToMove.Opposite }
-
 
     let getPossibleMoves board = [|
         for pos in 0..63 do
