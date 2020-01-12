@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FableReversi", "src\FableReversi\FableReversi.fsproj", "{64DAE296-4870-40B9-9B25-807E99EE2450}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Reversi", "src\Reversi\Reversi.fsproj", "{DC95DB82-D969-470C-B774-5CA03BF7B2D7}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TestComputer", "src\TestComputer\TestComputer.fsproj", "{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64DAE296-4870-40B9-9B25-807E99EE2450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64DAE296-4870-40B9-9B25-807E99EE2450}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64DAE296-4870-40B9-9B25-807E99EE2450}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64DAE296-4870-40B9-9B25-807E99EE2450}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC95DB82-D969-470C-B774-5CA03BF7B2D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC95DB82-D969-470C-B774-5CA03BF7B2D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC95DB82-D969-470C-B774-5CA03BF7B2D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC95DB82-D969-470C-B774-5CA03BF7B2D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC16AFFC-A38E-43FE-8569-4642ADF7284E}
+	EndGlobalSection
+EndGlobal
