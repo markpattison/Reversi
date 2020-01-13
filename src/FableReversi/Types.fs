@@ -34,6 +34,8 @@ type PlayerChoice =
 type GameModel =
     { GameInfo: GameInfo
       BoardView: BoardView
+      PlayerBlackChoice: PlayerChoice
+      PlayerWhiteChoice: PlayerChoice
       PlayerBlack: string * Player
       PlayerWhite: string * Player
       BlackDescription : string []

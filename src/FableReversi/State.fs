@@ -170,6 +170,8 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let initialModel =
             { GameInfo = gameInfo
               BoardView = toBoardView gameInfo
+              PlayerBlackChoice = blackPlayer
+              PlayerWhiteChoice = whitePlayer
               PlayerBlack = black
               PlayerWhite = white
               BlackDescription = (snd black).Describe()
@@ -181,13 +183,19 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let startingBoard = Board.startingBoard
         let gameInfo = Board.toGameInfo startingBoard
 
+        // swap players
+        let black = createPlayer gameModel.PlayerWhiteChoice
+        let white = createPlayer gameModel.PlayerBlackChoice
+
         let initialModel =
             { GameInfo = gameInfo
               BoardView = toBoardView gameInfo
-              PlayerBlack = gameModel.PlayerWhite
-              PlayerWhite = gameModel.PlayerBlack
-              BlackDescription = [||]
-              WhiteDescription = [||] }
+              PlayerBlackChoice = gameModel.PlayerWhiteChoice
+              PlayerWhiteChoice = gameModel.PlayerBlackChoice
+              PlayerBlack = black
+              PlayerWhite = white
+              BlackDescription = (snd black).Describe()
+              WhiteDescription = (snd white).Describe() }
 
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
