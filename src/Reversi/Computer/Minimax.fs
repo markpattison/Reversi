@@ -3,6 +3,10 @@ module FableReversi.Reversi.Computer.Minimax
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
+let printPos (p:int) =
+    let x,y = Bitboard.getXY p
+    sprintf "%c%i" (char (65 + x)) (8-y)
+
 let valueFinished (finished: FinishedGame) =
     let numBlack, numWhite = Board.countPieces finished.Board
     match finished.Result with
@@ -41,11 +45,12 @@ let minimax heuristic maxDepth board =
 let create heuristic depth =
     let random = System.Random()
     let mutable moveIndex = 0
+    let mutable lastDecription = [||]
 
     {
         OpponentSelected = ignore
         OnMoveSkipped = ignore
-        Describe = fun () -> [||]
+        Describe = fun () -> lastDecription
         ChooseMove = fun ongoingGame ->
 
             let movesWithScoresAndEvaluations =
@@ -64,6 +69,13 @@ let create heuristic depth =
             let choice = random.Next(0, bestMoves.Length)
 
             moveIndex <- moveIndex + 1
+
+            lastDecription <-
+                [| { Text = sprintf "Evaluation: %.1f" bestScore
+                     SubDescriptions =
+                        movesWithScores
+                        |> Array.sortByDescending snd
+                        |> Array.map (fun (move, score) -> { Text = sprintf "%s: %.1f" (printPos move.Pos) score; SubDescriptions = [||] }) } |]
 
             bestMoves.[choice]
     }
