@@ -225,7 +225,6 @@ module Board =
 
     let isPossibleMove board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            let x, y = Bitboard.getXY pos
             preCalculatedDirectionsAndMaxSquares.[pos] |> Array.exists (fun directionAndMaxSquares -> wouldFlip board colour pos directionAndMaxSquares)
         else
             false
