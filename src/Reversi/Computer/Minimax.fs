@@ -39,21 +39,18 @@ let minimax heuristic maxDepth board =
     (minimaxCalc 1 board, heuristicEvaluations)
 
 let create heuristic depth =
-    let random = new System.Random()
+    let random = System.Random()
     let mutable moveIndex = 0
-
-    let logger = ignore //printfn "%s"
 
     {
         OpponentSelected = ignore
         OnMoveSkipped = ignore
+        Describe = fun () -> [||]
         ChooseMove = fun ongoingGame ->
 
             let movesWithScoresAndEvaluations =
                 ongoingGame.PossibleMoves
                 |> Array.map (fun pm -> (pm, pm.Result |> minimax heuristic depth))
-
-            let totalHeuristicEvaluations = movesWithScoresAndEvaluations |> Array.sumBy (fun (_, (_, evaluations)) -> evaluations)
 
             let movesWithScores = movesWithScoresAndEvaluations |> Array.map (fun (move, (score, _)) -> move, score)
             let scores = movesWithScores |> Array.map snd
@@ -67,8 +64,6 @@ let create heuristic depth =
             let choice = random.Next(0, bestMoves.Length)
 
             moveIndex <- moveIndex + 1
-
-            sprintf "Move %i: %i heuristic evaluations, score: %.1fs" moveIndex totalHeuristicEvaluations bestScore |> logger
 
             bestMoves.[choice]
     }

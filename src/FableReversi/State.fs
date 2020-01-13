@@ -79,7 +79,19 @@ let init () =
 
 let updateBoard model board =
     let gameInfo = Board.toGameInfo board
-    { model with GameInfo = gameInfo; BoardView = toBoardView gameInfo }
+    { model with
+        GameInfo = gameInfo
+        BlackDescription =
+            if board.NextToMove = White then
+                (model.PlayerBlack |> snd).Describe()
+            else
+                model.BlackDescription
+        WhiteDescription =
+            if board.NextToMove = Black then
+                (model.PlayerWhite |> snd).Describe()
+            else
+                model.WhiteDescription
+        BoardView = toBoardView gameInfo }
 
 let requestComputerMove (player: ComputerPlayer, board) =
     async {
@@ -152,12 +164,16 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | LobbyMsg Start, Lobby { PlayerBlackChoice = blackPlayer; PlayerWhiteChoice = whitePlayer } ->
         let startingBoard = Board.startingBoard
         let gameInfo = Board.toGameInfo startingBoard
+        let black = createPlayer blackPlayer
+        let white = createPlayer whitePlayer
 
         let initialModel =
             { GameInfo = gameInfo
               BoardView = toBoardView gameInfo
-              PlayerBlack = createPlayer blackPlayer
-              PlayerWhite = createPlayer whitePlayer }
+              PlayerBlack = black
+              PlayerWhite = white
+              BlackDescription = (snd black).Describe()
+              WhiteDescription = (snd white).Describe() }
 
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
@@ -169,7 +185,9 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
             { GameInfo = gameInfo
               BoardView = toBoardView gameInfo
               PlayerBlack = gameModel.PlayerWhite
-              PlayerWhite = gameModel.PlayerBlack }
+              PlayerWhite = gameModel.PlayerBlack
+              BlackDescription = [||]
+              WhiteDescription = [||] }
 
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
