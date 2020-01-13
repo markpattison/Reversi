@@ -144,6 +144,15 @@ let summary result =
     | Win White -> "White wins!"
     | Tie -> "Game tied!"
 
+let showDescription description =
+    let rec showIndentedDescription indent desc =
+        let subDescriptions = desc.SubDescriptions |> Array.map (showIndentedDescription (indent + 1)) |> Array.toList
+        div []
+            [ p [] [ System.String('-', indent * 2) + " " + desc.Text |> str; br [] ]
+              div [] subDescriptions ]
+    
+    div [] (description |> Array.map (showIndentedDescription 0) |> Array.toList)
+
 let gameContent model dispatch =
     let gameInfo = model.GameInfo
 
@@ -169,17 +178,11 @@ let gameContent model dispatch =
             [ p []
                     [ sprintf "Black (%s): %i " (fst model.PlayerBlack) numBlack |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              p []
-                    [ for s in model.BlackDescription do
-                        str s
-                        br [] ]
+              showDescription model.BlackDescription
               p []
                     [ sprintf "White (%s): %i " (fst model.PlayerWhite) numWhite |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              p []
-                    [ for s in model.WhiteDescription do
-                        str s
-                        br [] ]
+              showDescription model.WhiteDescription
               if showSkipButton then
                   br []
                   button "Skip move" (fun _ -> dispatch (GameAction SkipMove))

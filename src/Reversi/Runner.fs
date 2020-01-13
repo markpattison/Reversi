@@ -8,12 +8,18 @@ type GameAction =
 
 type Heuristic = OngoingGame -> float
 
+type Description =
+    {
+      Text : string
+      SubDescriptions: Description []
+    }
+
 type ComputerPlayer =
     {
         ChooseMove : OngoingGame -> PossibleMove
         OpponentSelected : PossibleMove -> unit
         OnMoveSkipped : unit -> unit
-        Describe : unit -> string []
+        Describe : unit -> Description []
     }
 
 module Actions =

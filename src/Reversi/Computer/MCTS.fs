@@ -128,28 +128,34 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
                 children
 
 
-        member this.Describe () = [|
+        member this.Describe () =
             let children = this.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
             match children |> Array.tryHead with
             | Some best ->
-                sprintf "Evaluation: %.1f/%d => %.4f\n" best.Wins (int best.Tries) best.Chances
-            | _ -> ()
+                let text = sprintf "Evaluation: %.1f/%d => %.0f%%\n" best.Wins (int best.Tries) (100.0 * best.Chances)
 
-            for child in children do
-                match child.Move with
-                | Some move ->
-                    sprintf "\t- %s : %.1f/%d => %.4f\n" (printPos move.Pos) child.Wins (int child.Tries) child.Chances
-                | None ->
-                    sprintf "\t- Skip : %.1f/%d => %.4f\n" child.Wins (int child.Tries) child.Chances
+                let subDescriptions =
+                    children
+                    |> Array.map (fun child ->
+                        let text =
+                            match child.Move with
+                            | Some move ->
+                                sprintf "%s : %.1f/%d => %.0f%%\n" (printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances)
+                            | None ->
+                                sprintf "Skip : %.1f/%d => %.0f%%\n" child.Wins (int child.Tries) (100.0 * child.Chances)
 
-                let children = child.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
-                for child in children do
-                    match child.Move with
-                    | Some move ->
-                        sprintf "\t\t* %s : %.1f/%d => %.4f\n" (printPos move.Pos) child.Wins (int child.Tries) child.Chances
-                    | None ->
-                        sprintf "\t\t* Skip : %.1f/%d => %.4f\n" child.Wins (int child.Tries) child.Chances
-        |]
+                        let children = child.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
+                        let subDescriptions =
+                            children
+                            |> Array.map (fun child ->
+                                match child.Move with
+                                | Some move ->
+                                    { Text = sprintf "%s : %.1f/%d => %.0f%%\n" (printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances); SubDescriptions = [||] }
+                                | None ->
+                                    { Text = sprintf "Skip : %.1f/%d => %.0f%%\n" child.Wins (int child.Tries) (100.0 * child.Chances); SubDescriptions = [||] })
+                        { Text = text; SubDescriptions = subDescriptions })
+                [| { Text = text; SubDescriptions = subDescriptions } |]
+            | _ -> [||]
 
         member this.Expand() =
             if !children = Children.Unknown then

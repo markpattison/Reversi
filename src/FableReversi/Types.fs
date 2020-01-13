@@ -38,8 +38,8 @@ type GameModel =
       PlayerWhiteChoice: PlayerChoice
       PlayerBlack: string * Player
       PlayerWhite: string * Player
-      BlackDescription : string []
-      WhiteDescription : string [] }
+      BlackDescription : Description []
+      WhiteDescription : Description [] }
 
     member this.CurrentPlayer =
         match this.GameInfo.Board.NextToMove with
