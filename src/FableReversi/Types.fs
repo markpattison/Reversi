@@ -20,6 +20,12 @@ type BoardView =
 type Player =
     | Human
     | Computer of ComputerPlayer
+    with
+        member this.Describe() =
+            match this with
+            | Human -> [||]
+            | Computer player -> player.Describe()
+
 
 type PlayerChoice =
     | HumanChoice
@@ -29,7 +35,9 @@ type GameModel =
     { GameInfo: GameInfo
       BoardView: BoardView
       PlayerBlack: string * Player
-      PlayerWhite: string * Player }
+      PlayerWhite: string * Player
+      BlackDescription : string []
+      WhiteDescription : string [] }
 
     member this.CurrentPlayer =
         match this.GameInfo.Board.NextToMove with

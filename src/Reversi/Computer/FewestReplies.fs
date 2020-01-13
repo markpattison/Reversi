@@ -9,10 +9,11 @@ let numberPossibleMoves board =
     | _ -> 0
 
 let create() =
-    let random = new System.Random()
+    let random = System.Random()
     {
         OpponentSelected = ignore
         OnMoveSkipped = ignore
+        Describe = fun () -> [||]
         ChooseMove = fun ongoingGame ->
             let movesWithFewestReplies =
                 ongoingGame.PossibleMoves

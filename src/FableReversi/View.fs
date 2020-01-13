@@ -119,8 +119,12 @@ let showSquare dispatch humanPlaying (location, square:Square, view) =
 let showBoard dispatch humanPlaying boardView =
     let rows =
         boardView.SquareViews
-        |> List.map (fun row ->
-            tr [] (row |> List.map (showSquare dispatch humanPlaying)))
+        |> List.mapi (fun i row ->
+            tr [] [
+                td [] [str (string (i+1)) ]
+                yield! row |> List.map (showSquare dispatch humanPlaying)
+            ])
+        |> List.append [ tr [] [ td [] []; for i in 0..7 do td [] [str (string (char (i + 65))) ] ]]
 
     Table.table
         [ Table.IsBordered
@@ -166,8 +170,16 @@ let gameContent model dispatch =
                     [ sprintf "Black (%s): %i " (fst model.PlayerBlack) numBlack |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
               p []
+                    [ for s in model.BlackDescription do
+                        str s
+                        br [] ]
+              p []
                     [ sprintf "White (%s): %i " (fst model.PlayerWhite) numWhite |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
+              p []
+                    [ for s in model.WhiteDescription do
+                        str s
+                        br [] ]
               if showSkipButton then
                   br []
                   button "Skip move" (fun _ -> dispatch (GameAction SkipMove))

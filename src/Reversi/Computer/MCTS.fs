@@ -5,6 +5,7 @@ open FableReversi.Reversi.Runner
 open System
 
 let c = System.Math.Sqrt(2.)
+let random = Random()
 
 [<RequireQualifiedAccess>]
 type Children =
@@ -13,17 +14,22 @@ type Children =
 | SkipMove of Node
 | Moves of Node []
 
-and Node(parent:Node option,random:Random,board:Board) =
+and Node(parent:Node option,move:PossibleMove option,board:Board) =
     let mutable wins = 0.
     let mutable tries = 0.
     let mutable chances = 0.5
     let mutable children  = ref Children.Unknown
+
+    let printPos (p:int) =
+        let x,y = Bitboard.getXY p
+        sprintf "%c%i" (char (65 + x)) (8-y)
 
     with
         member __.Board = board
         member __.Chances = chances
         member __.Wins = wins
         member __.Tries = tries
+        member __.Move = move
 
         member this.ApplyMove move =
             match !children with
@@ -110,31 +116,66 @@ and Node(parent:Node option,random:Random,board:Board) =
                     let f (node:Node) = node.Chances + c * System.Math.Sqrt(n / node.Tries)
                     (children |> Seq.maxBy f).Select()
 
+        member this.GetChildren() =
+            match !children with
+            | Children.Unknown ->
+                [||]
+            | Children.Discarded ->
+                [||]
+            | Children.SkipMove node ->
+                [|node|]
+            | Children.Moves children ->
+                children
+
+
+        member this.Describe () = [|
+            let children = this.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
+            match children |> Array.tryHead with
+            | Some best ->
+                sprintf "Evaluation: %.1f/%d => %.4f\n" best.Wins (int best.Tries) best.Chances
+            | _ -> ()
+
+            for child in children do
+                match child.Move with
+                | Some move ->
+                    sprintf "\t- %s : %.1f/%d => %.4f\n" (printPos move.Pos) child.Wins (int child.Tries) child.Chances
+                | None ->
+                    sprintf "\t- Skip : %.1f/%d => %.4f\n" child.Wins (int child.Tries) child.Chances
+
+                let children = child.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
+                for child in children do
+                    match child.Move with
+                    | Some move ->
+                        sprintf "\t\t* %s : %.1f/%d => %.4f\n" (printPos move.Pos) child.Wins (int child.Tries) child.Chances
+                    | None ->
+                        sprintf "\t\t* Skip : %.1f/%d => %.4f\n" child.Wins (int child.Tries) child.Chances
+        |]
+
         member this.Expand() =
             if !children = Children.Unknown then
                 children :=
                     let moves = Board.getPossibleMovesAndFlips board
                     if Array.isEmpty moves then
                         let opposite = board.NextToMove.Opposite
-                        Children.SkipMove(Node(Some this,random,{ board with NextToMove = opposite }))
+                        Children.SkipMove(Node(Some this,None,{ board with NextToMove = opposite }))
                     else
                         moves
                         |> Array.map (fun move ->
-                            let n = Node(Some this,random,move.Result)
+                            let n = Node(Some this,Some move,move.Result)
                             n.Playout()
                             n)
                         |> Children.Moves
 
 let create playouts =
-    let random = Random()
-    let mutable current = Node(None,random,Board.startingBoard)
+    let mutable current = Node(None,None,Board.startingBoard)
     let mutable moveIndex = 0
-
-    let logger = ignore //printfn "%s"
+    let mutable lastDecription = [||]
 
     {
         OnMoveSkipped = fun () -> current <- current.ApplyBestMove()
         OpponentSelected = fun selected -> current <- current.ApplyMove selected.Result
+        Describe = fun () -> lastDecription
+
         ChooseMove = fun ongoingGame ->
             for _ in 1 .. playouts do
                 let selected = current.Select()
@@ -142,8 +183,8 @@ let create playouts =
                 selected.Playout()
 
             moveIndex <- moveIndex + 1
+            lastDecription <- current.Describe()
             current <- current.ApplyBestMove()
-            sprintf "Move %i: chances: %.3f tries: %d" moveIndex current.Chances (int current.Tries) |> logger
 
             let selected = ongoingGame.PossibleMoves |> Array.find (fun m -> m.Result = current.Board)
             selected

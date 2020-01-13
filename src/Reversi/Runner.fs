@@ -10,9 +10,10 @@ type Heuristic = OngoingGame -> float
 
 type ComputerPlayer =
     {
-        ChooseMove: OngoingGame -> PossibleMove
-        OpponentSelected: PossibleMove -> unit
+        ChooseMove : OngoingGame -> PossibleMove
+        OpponentSelected : PossibleMove -> unit
         OnMoveSkipped : unit -> unit
+        Describe : unit -> string []
     }
 
 module Actions =
