@@ -144,11 +144,20 @@ let summary result =
     | Win White -> "White wins!"
     | Tie -> "Game tied!"
 
-let showDescription description =
+let showDescription dispatch description =
     let rec showIndentedDescription indent desc =
-        let subDescriptions = desc.SubDescriptions |> Array.map (showIndentedDescription (indent + 1)) |> Array.toList
+        let subDescriptions =
+            match desc.SubDescriptionsView with
+            | Some (true, subs) -> subs |> Array.map (showIndentedDescription (indent + 1)) |> Array.toList
+            | _ -> []
+        let icon =
+            match desc.SubDescriptionsView with
+            | Some (true, _) -> [ Fa.Solid.CaretDown ]
+            | Some (false, _) -> [ Fa.Solid.CaretRight ]
+            | None -> []
+        
         div []
-            [ p [] [ System.String('-', indent * 2) + " " + desc.Text |> str; br [] ]
+            [ p [ OnClick (fun _ -> Expand desc.Id |> dispatch); Style [ PaddingLeft (sprintf "%iem" indent) ] ] [ Icon.icon [] [ Fa.i icon [] ]; desc.TextView |> str; br [] ]
               div [] subDescriptions ]
     
     div [] (description |> Array.map (showIndentedDescription 0) |> Array.toList)
@@ -178,11 +187,11 @@ let gameContent model dispatch =
             [ p []
                     [ sprintf "Black (%s): %i " (fst model.PlayerBlack) numBlack |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              showDescription model.BlackDescription
+              showDescription dispatch model.BlackDescription
               p []
                     [ sprintf "White (%s): %i " (fst model.PlayerWhite) numWhite |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              showDescription model.WhiteDescription
+              showDescription dispatch model.WhiteDescription
               if showSkipButton then
                   br []
                   button "Skip move" (fun _ -> dispatch (GameAction SkipMove))

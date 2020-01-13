@@ -26,6 +26,12 @@ type Player =
             | Human -> [||]
             | Computer player -> player.Describe()
 
+type DescriptionView =
+    {
+      Id: int
+      TextView : string
+      SubDescriptionsView : (bool  * DescriptionView []) option
+    }
 
 type PlayerChoice =
     | HumanChoice
@@ -38,8 +44,9 @@ type GameModel =
       PlayerWhiteChoice: PlayerChoice
       PlayerBlack: string * Player
       PlayerWhite: string * Player
-      BlackDescription : Description []
-      WhiteDescription : Description [] }
+      BlackDescription : DescriptionView []
+      WhiteDescription : DescriptionView []
+      UniqueId: int ref }
 
     member this.CurrentPlayer =
         match this.GameInfo.Board.NextToMove with
@@ -66,6 +73,7 @@ type GameMsg =
     | Hover of int * int
     | Click of int * int
     | GameAction of GameAction
+    | Expand of int
     | RequestComputerMoveIfNeeded
     | Restart
     | ChangePlayers

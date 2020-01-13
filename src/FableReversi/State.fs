@@ -77,18 +77,27 @@ let init () =
                   PlayerWhiteChoice = HumanChoice } }
     initialOuterModel, Cmd.none
 
+let rec toDescriptionView uniqueId description =
+    match description.SubDescriptions with
+    | [||] ->
+        uniqueId := !uniqueId + 1
+        { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = None }
+    | sd ->
+        uniqueId := !uniqueId + 1
+        { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = Some (false, description.SubDescriptions |> Array.map (toDescriptionView uniqueId)) }
+
 let updateBoard model board =
     let gameInfo = Board.toGameInfo board
     { model with
         GameInfo = gameInfo
         BlackDescription =
             if board.NextToMove = White then
-                (model.PlayerBlack |> snd).Describe()
+                (model.PlayerBlack |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
             else
                 model.BlackDescription
         WhiteDescription =
             if board.NextToMove = Black then
-                (model.PlayerWhite |> snd).Describe()
+                (model.PlayerWhite |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
             else
                 model.WhiteDescription
         BoardView = toBoardView gameInfo }
@@ -104,6 +113,13 @@ let updateLobby (msg: LobbyMsg) (options: LobbyOptions) : LobbyOptions * Cmd<Lob
     | ChangeBlackPlayer p -> { options with PlayerBlackChoice = p }, Cmd.none
     | ChangeWhitePlayer p -> { options with PlayerWhiteChoice = p }, Cmd.none
     | Start -> options, Cmd.none // handled at Model level
+
+let rec toggleExpanded descId descView =
+    { descView with SubDescriptionsView =
+                        match descView.SubDescriptionsView with
+                        | None -> None
+                        | Some (expanded, subs) when descId = descView.Id -> Some (not expanded, subs)
+                        | Some (expanded, subs) -> Some (expanded, subs |> Array.map (toggleExpanded descId)) }
 
 let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
     let possibleMoves = getPossibleMoves model.GameInfo
@@ -156,6 +172,11 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
 
         model, computerRequest
 
+    | Expand descId ->
+        { model with
+            BlackDescription = model.BlackDescription |> Array.map (toggleExpanded descId)
+            WhiteDescription = model.WhiteDescription |> Array.map (toggleExpanded descId) }, Cmd.none
+
     | Restart -> model, Cmd.none // handled at Model level
     | ChangePlayers -> model, Cmd.none // handled at Model level
 
@@ -166,6 +187,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         let gameInfo = Board.toGameInfo startingBoard
         let black = createPlayer blackPlayer
         let white = createPlayer whitePlayer
+        let uniqueId = ref 0
 
         let initialModel =
             { GameInfo = gameInfo
@@ -174,8 +196,9 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
               PlayerWhiteChoice = whitePlayer
               PlayerBlack = black
               PlayerWhite = white
-              BlackDescription = (snd black).Describe()
-              WhiteDescription = (snd white).Describe() }
+              BlackDescription = (snd black).Describe() |> Array.map (toDescriptionView uniqueId)
+              WhiteDescription = (snd white).Describe() |> Array.map (toDescriptionView uniqueId)
+              UniqueId = uniqueId }
 
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 
@@ -186,6 +209,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
         // swap players
         let black = createPlayer gameModel.PlayerWhiteChoice
         let white = createPlayer gameModel.PlayerBlackChoice
+        let uniqueId = ref 0
 
         let initialModel =
             { GameInfo = gameInfo
@@ -194,8 +218,9 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
               PlayerWhiteChoice = gameModel.PlayerBlackChoice
               PlayerBlack = black
               PlayerWhite = white
-              BlackDescription = (snd black).Describe()
-              WhiteDescription = (snd white).Describe() }
+              BlackDescription = (snd black).Describe() |> Array.map (toDescriptionView uniqueId)
+              WhiteDescription = (snd white).Describe() |> Array.map (toDescriptionView uniqueId)
+              UniqueId = uniqueId }
 
         { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
 

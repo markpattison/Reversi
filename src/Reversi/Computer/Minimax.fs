@@ -57,6 +57,8 @@ let create heuristic depth =
                 ongoingGame.PossibleMoves
                 |> Array.map (fun pm -> (pm, pm.Result |> minimax heuristic depth))
 
+            //let totalHeuristicEvaluations = movesWithScoresAndEvaluations |> Array.sumBy (fun (_, (_, evaluations)) -> evaluations)
+
             let movesWithScores = movesWithScoresAndEvaluations |> Array.map (fun (move, (score, _)) -> move, score)
             let scores = movesWithScores |> Array.map snd
             let bestScore = match ongoingGame.Board.NextToMove with | Black -> Array.max scores | White -> Array.min scores
