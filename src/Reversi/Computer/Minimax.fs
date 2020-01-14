@@ -3,10 +3,6 @@ module FableReversi.Reversi.Computer.Minimax
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
 
-let printPos (p:int) =
-    let x,y = Bitboard.getXY p
-    sprintf "%c%i" (char (65 + x)) (8-y)
-
 let valueFinished (finished: FinishedGame) =
     let numBlack, numWhite = Board.countPieces finished.Board
     match finished.Result with
@@ -77,7 +73,7 @@ let create heuristic depth =
                      SubDescriptions =
                         movesWithScores
                         |> Array.sortByDescending snd
-                        |> Array.map (fun (move, score) -> { Text = sprintf "%s: %.1f" (printPos move.Pos) score; SubDescriptions = [||] }) } |]
+                        |> Array.map (fun (move, score) -> { Text = sprintf "%s: %.1f" (Bitboard.printPos move.Pos) score; SubDescriptions = [||] }) } |]
 
             bestMoves.[choice]
     }

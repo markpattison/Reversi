@@ -31,7 +31,7 @@ let create() =
                 |> Array.collect (fun (score,moves) ->
                     moves
                     |> Array.sortByDescending (fun m -> if m = selected then 1 else 0)
-                    |> Array.map (fun move ->{ Text = Bitboard.printPos move.Pos + " => " + string score; SubDescriptions = [||] } )
+                    |> Array.map (fun move -> { Text = Bitboard.printPos move.Pos + " => " + string score; SubDescriptions = [||] } )
                 )
 
             selected
