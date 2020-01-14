@@ -24,6 +24,10 @@ module Bitboard =
             board <- board >>> 1
         count
 
+    let printPos (p:int) =
+        let x,y = getXY p
+        sprintf "%c%i" (char (65 + x)) (8-y)
+
 [<Struct>]
 type Colour =
     | Black

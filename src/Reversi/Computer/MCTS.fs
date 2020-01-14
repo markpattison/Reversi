@@ -20,9 +20,6 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
     let mutable chances = 0.5
     let mutable children  = ref Children.Unknown
 
-    let printPos (p:int) =
-        let x,y = Bitboard.getXY p
-        sprintf "%c%i" (char (65 + x)) (8-y)
 
     with
         member __.Board = board
@@ -140,7 +137,7 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
                         let text =
                             match child.Move with
                             | Some move ->
-                                sprintf "%s : %.1f/%d => %.0f%%\n" (printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances)
+                                sprintf "%s : %.1f/%d => %.0f%%\n" (Bitboard.printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances)
                             | None ->
                                 sprintf "Skip : %.1f/%d => %.0f%%\n" child.Wins (int child.Tries) (100.0 * child.Chances)
 
@@ -150,7 +147,7 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
                             |> Array.map (fun child ->
                                 match child.Move with
                                 | Some move ->
-                                    { Text = sprintf "%s : %.1f/%d => %.0f%%\n" (printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances); SubDescriptions = [||] }
+                                    { Text = sprintf "%s : %.1f/%d => %.0f%%\n" (Bitboard.printPos move.Pos) child.Wins (int child.Tries) (100.0 * child.Chances); SubDescriptions = [||] }
                                 | None ->
                                     { Text = sprintf "Skip : %.1f/%d => %.0f%%\n" child.Wins (int child.Tries) (100.0 * child.Chances); SubDescriptions = [||] })
                         { Text = text; SubDescriptions = subDescriptions })
@@ -175,12 +172,12 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
 let create playouts =
     let mutable current = Node(None,None,Board.startingBoard)
     let mutable moveIndex = 0
-    let mutable lastDecription = [||]
+    let mutable lastDescription = [||]
 
     {
         OnMoveSkipped = fun () -> current <- current.ApplyBestMove()
         OpponentSelected = fun selected -> current <- current.ApplyMove selected.Result
-        Describe = fun () -> lastDecription
+        Describe = fun () -> lastDescription
 
         ChooseMove = fun ongoingGame ->
             for _ in 1 .. playouts do
@@ -189,7 +186,7 @@ let create playouts =
                 selected.Playout()
 
             moveIndex <- moveIndex + 1
-            lastDecription <- current.Describe()
+            lastDescription <- current.Describe()
             current <- current.ApplyBestMove()
 
             let selected = ongoingGame.PossibleMoves |> Array.find (fun m -> m.Result = current.Board)
