@@ -15,6 +15,9 @@
     <Compile Include="Lobby\LobbyTypes.fs" />
     <Compile Include="Lobby\LobbyState.fs" />
     <Compile Include="Lobby\LobbyView.fs" />
+    <Compile Include="Game\GameTypes.fs" />
+    <Compile Include="Game\GameState.fs" />
+    <Compile Include="Game\GameView.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />
     <Compile Include="View.fs" />

@@ -47,14 +47,14 @@ let dropdown value key dispatch =
                 [ Select.Props [ OnChange onChange; Key key ] ]
                 [ select [ DefaultValue currentValue ] dropDownItems ] ] ]
 
-let lobbyContent lobbyOptions dispatch =
+let view model dispatch =
     div []
         [ p []
             [ str "Black"
-              dropdown lobbyOptions.PlayerBlackChoice "BlackDropdown" (ChangeBlackPlayer >> dispatch) ]
+              dropdown model.PlayerBlackChoice "BlackDropdown" (ChangeBlackPlayer >> dispatch) ]
           br []
           p []
             [ str "White"
-              dropdown lobbyOptions.PlayerWhiteChoice "WhiteDropdown" (ChangeWhitePlayer >> dispatch) ]
+              dropdown model.PlayerWhiteChoice "WhiteDropdown" (ChangeWhitePlayer >> dispatch) ]
           br []
           button "Start game" (fun _ -> dispatch Start)]

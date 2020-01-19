@@ -10,8 +10,8 @@ let init () =
     { PlayerBlackChoice = HumanChoice
       PlayerWhiteChoice = HumanChoice }
 
-let update (msg: LobbyMsg) (options: LobbyModel) : LobbyModel * Cmd<LobbyMsg> =
+let update (msg: LobbyMsg) (model: LobbyModel) : LobbyModel * Cmd<LobbyMsg> =
     match msg with
-    | ChangeBlackPlayer p -> { options with PlayerBlackChoice = p }, Cmd.none
-    | ChangeWhitePlayer p -> { options with PlayerWhiteChoice = p }, Cmd.none
-    | Start -> options, Cmd.none // handled at Model level
+    | ChangeBlackPlayer p -> { model with PlayerBlackChoice = p }, Cmd.none
+    | ChangeWhitePlayer p -> { model with PlayerWhiteChoice = p }, Cmd.none
+    | Start -> model, Cmd.none // handled at Model level
