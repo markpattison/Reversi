@@ -16,51 +16,40 @@ let init () =
     let initialOuterModel = { OuterState = Lobby (Lobby.State.init()) }
     initialOuterModel, Cmd.none
 
+let newGame blackPlayer whitePlayer =
+    let startingBoard = Board.startingBoard
+    let gameInfo = Board.toGameInfo startingBoard
+    let black = createPlayer blackPlayer
+    let white = createPlayer whitePlayer
+    let uniqueId = ref 0
+
+    let model =
+        { GameInfo = gameInfo
+          BoardView = Game.State.toBoardView gameInfo
+          PlayerBlackChoice = blackPlayer
+          PlayerWhiteChoice = whitePlayer
+          PlayerBlack = black
+          PlayerWhite = white
+          BlackDescription = (snd black).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
+          WhiteDescription = (snd white).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
+          UniqueId = uniqueId }
+
+    { OuterState = Playing model }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
+
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg, model.OuterState with
     | LobbyMsg Start, Lobby { PlayerBlackChoice = blackPlayer; PlayerWhiteChoice = whitePlayer } ->
-        let startingBoard = Board.startingBoard
-        let gameInfo = Board.toGameInfo startingBoard
-        let black = createPlayer blackPlayer
-        let white = createPlayer whitePlayer
-        let uniqueId = ref 0
-
-        let initialModel =
-            { GameInfo = gameInfo
-              BoardView = Game.State.toBoardView gameInfo
-              PlayerBlackChoice = blackPlayer
-              PlayerWhiteChoice = whitePlayer
-              PlayerBlack = black
-              PlayerWhite = white
-              BlackDescription = (snd black).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
-              WhiteDescription = (snd white).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
-              UniqueId = uniqueId }
-
-        { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
+        newGame blackPlayer whitePlayer
 
     | GameMsg Restart, Playing gameModel ->
-        let startingBoard = Board.startingBoard
-        let gameInfo = Board.toGameInfo startingBoard
-
         // swap players
-        let black = createPlayer gameModel.PlayerWhiteChoice
-        let white = createPlayer gameModel.PlayerBlackChoice
-        let uniqueId = ref 0
+        let blackPlayer = gameModel.PlayerWhiteChoice
+        let whitePlayer = gameModel.PlayerBlackChoice
+        
+        newGame blackPlayer whitePlayer
 
-        let initialModel =
-            { GameInfo = gameInfo
-              BoardView = Game.State.toBoardView gameInfo
-              PlayerBlackChoice = gameModel.PlayerWhiteChoice
-              PlayerWhiteChoice = gameModel.PlayerBlackChoice
-              PlayerBlack = black
-              PlayerWhite = white
-              BlackDescription = (snd black).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
-              WhiteDescription = (snd white).Describe() |> Array.map (Game.State.toDescriptionView uniqueId)
-              UniqueId = uniqueId }
-
-        { OuterState = Playing initialModel }, Cmd.ofMsg (GameMsg RequestComputerMoveIfNeeded)
-
-    | GameMsg ChangePlayers, Playing _ -> init()
+    | GameMsg ChangePlayers, Playing _ ->
+        init()
 
     | LobbyMsg lobbyMsg, Lobby lobbyOptions ->
         let updatedLobbyOptions, cmd = Lobby.State.update lobbyMsg lobbyOptions
