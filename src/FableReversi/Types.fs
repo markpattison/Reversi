@@ -2,7 +2,7 @@ module FableReversi.Types
 
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
-open FableReversi.Reversi.Computer.Players
+open FableReversi.Lobby.Types
 
 type Square =
     | Empty
@@ -33,10 +33,6 @@ type DescriptionView =
       SubDescriptionsView : (bool  * DescriptionView []) option
     }
 
-type PlayerChoice =
-    | HumanChoice
-    | ComputerChoice of ComputerPlayerChoice
-
 type GameModel =
     { GameInfo: GameInfo
       BoardView: BoardView
@@ -53,21 +49,12 @@ type GameModel =
         | Black -> this.PlayerBlack |> snd
         | White -> this.PlayerWhite |> snd
 
-type LobbyOptions =
-    { PlayerBlackChoice: PlayerChoice
-      PlayerWhiteChoice: PlayerChoice }
-
 type OuterState =
-    | Lobby of LobbyOptions
+    | Lobby of LobbyModel
     | Playing of GameModel
 
 type Model =
     { OuterState: OuterState }
-
-type LobbyMsg =
-    | ChangeBlackPlayer of PlayerChoice
-    | ChangeWhitePlayer of PlayerChoice
-    | Start
 
 type GameMsg =
     | Hover of int * int

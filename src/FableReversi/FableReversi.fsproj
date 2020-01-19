@@ -11,6 +11,10 @@
     <None Include="index.html" />
     <None Include="paket.references" />
     <None Include="style.scss" />
+    <Compile Include="Shared\SharedView.fs" />
+    <Compile Include="Lobby\LobbyTypes.fs" />
+    <Compile Include="Lobby\LobbyState.fs" />
+    <Compile Include="Lobby\LobbyView.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />
     <Compile Include="View.fs" />

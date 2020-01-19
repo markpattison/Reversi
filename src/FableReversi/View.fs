@@ -1,5 +1,5 @@
 module FableReversi.View
-open Browser.Types
+
 open Fable.FontAwesome
 open Fable.React
 open Fable.React.Props
@@ -7,21 +7,8 @@ open Fulma
 
 open Types
 open FableReversi.Reversi
-open FableReversi.Reversi.Computer
-open FableReversi.Reversi.Computer.Players
 open FableReversi.Reversi.Runner
-
-let computerPlayers =
-    [
-        Random
-        Greedy
-        FewestReplies
-        Minimax (Heuristics.Basic, 0)
-        Minimax (Heuristics.Basic, 1)
-        Minimax (Heuristics.Basic, 2)
-        MCTS 25
-        MCTS 200
-    ]
+open Shared.View
 
 let toPieceIcon colour =
     [ Fa.i
@@ -48,49 +35,6 @@ let plainCellProps = toCellProps "#00b000"
 let possibleMoveCellProps = toCellProps "#00d000"
 let possibleMoveHoverCellProps = toCellProps "#00f000"
 let wouldFlipCellProps = toCellProps "#00d000"
-
-let button txt onClick =
-    Button.button
-        [ Button.Color IsPrimary
-          Button.OnClick onClick ]
-        [ str txt ]
-
-let players =
-    let computers = List.map (fun cp -> (ComputerChoice cp, cp.Name)) computerPlayers
-    (HumanChoice, "Human") :: computers
-
-let dropdown value key dispatch =
-    let onChange (ev: Event) =
-        match List.tryFind (fun (_, name) -> name = ev.Value) players with
-        | Some (pc, _) -> dispatch pc
-        | None -> ()
-
-    let dropDownItems =
-        players
-        |> List.map (fun (_, name) -> option [ Value name ] [ str name ])
-
-    let currentValue =
-        match List.tryFind (fun (cp, _) -> cp = value) players with
-        | Some (_, name) -> name
-        | None -> ""
-
-    Field.div []
-        [ Control.div []
-            [ Select.select
-                [ Select.Props [ OnChange onChange; Key key ] ]
-                [ select [ DefaultValue currentValue ] dropDownItems ] ] ]
-
-let lobbyContent lobbyOptions dispatch =
-    div []
-        [ p []
-            [ str "Black"
-              dropdown lobbyOptions.PlayerBlackChoice "BlackDropdown" (ChangeBlackPlayer >> dispatch) ]
-          br []
-          p []
-            [ str "White"
-              dropdown lobbyOptions.PlayerWhiteChoice "WhiteDropdown" (ChangeWhitePlayer >> dispatch) ]
-          br []
-          button "Start game" (fun _ -> dispatch Start)]
 
 let showSquare dispatch humanPlaying (location, square:Square, view) =
     let cellProps : IHTMLProp list =
@@ -206,7 +150,7 @@ let gameContent model dispatch =
 
 let content model dispatch =
     match model.OuterState with
-    | Lobby lobbyOptions -> lobbyContent lobbyOptions (LobbyMsg >> dispatch)
+    | Lobby lobbyOptions -> Lobby.View.lobbyContent lobbyOptions (LobbyMsg >> dispatch)
     | Playing gameModel -> gameContent gameModel (GameMsg >> dispatch)
 
 let view (model : Model) (dispatch : Msg -> unit) =

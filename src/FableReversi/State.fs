@@ -4,6 +4,7 @@ open Elmish
 
 open FableReversi.Reversi
 open FableReversi.Reversi.Runner
+open Lobby.Types
 open Types
 
 let getPossibleMoves gameInfo =
@@ -70,11 +71,7 @@ let createPlayer playerChoice =
     | ComputerChoice c -> sprintf "Computer %A" c, Computer (Computer.Players.create c)
 
 let init () =
-    let initialOuterModel =
-        { OuterState =
-            Lobby
-                { PlayerBlackChoice = HumanChoice
-                  PlayerWhiteChoice = HumanChoice } }
+    let initialOuterModel = { OuterState = Lobby (Lobby.State.init()) }
     initialOuterModel, Cmd.none
 
 let rec toDescriptionView uniqueId description =
@@ -107,12 +104,6 @@ let requestComputerMove (player: ComputerPlayer, board) =
         do! Async.Sleep 100
         return player.ChooseMove board
     }
-
-let updateLobby (msg: LobbyMsg) (options: LobbyOptions) : LobbyOptions * Cmd<LobbyMsg> =
-    match msg with
-    | ChangeBlackPlayer p -> { options with PlayerBlackChoice = p }, Cmd.none
-    | ChangeWhitePlayer p -> { options with PlayerWhiteChoice = p }, Cmd.none
-    | Start -> options, Cmd.none // handled at Model level
 
 let rec toggleExpanded descId descView =
     { descView with SubDescriptionsView =
@@ -227,7 +218,7 @@ let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     | GameMsg ChangePlayers, Playing _ -> init()
 
     | LobbyMsg lobbyMsg, Lobby lobbyOptions ->
-        let updatedLobbyOptions, cmd = updateLobby lobbyMsg lobbyOptions
+        let updatedLobbyOptions, cmd = Lobby.State.update lobbyMsg lobbyOptions
         { model with OuterState = Lobby updatedLobbyOptions }, Cmd.map LobbyMsg cmd
 
     | GameMsg gameMsg, Playing gameModel ->
