@@ -168,7 +168,7 @@ let updateGame (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
             | Finished _, _ -> Cmd.none
             | OngoingSkipMove _, _ -> Cmd.ofMsg (GameAction SkipMove)
             | Ongoing ongoingGame, Computer player ->
-                Cmd.OfAsync.perform requestComputerMove (player, ongoingGame) (fun move -> GameAction (PlayMove move))
+                Cmd.OfAsync.perform requestComputerMove (player, ongoingGame) (PlayMove >> GameAction)
 
         model, computerRequest
 

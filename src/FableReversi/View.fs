@@ -1,4 +1,3 @@
-
 module FableReversi.View
 open Browser.Types
 open Fable.FontAwesome
