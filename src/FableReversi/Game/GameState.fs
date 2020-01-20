@@ -74,6 +74,28 @@ let rec toDescriptionView uniqueId description =
         uniqueId := !uniqueId + 1
         { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = Some (false, description.SubDescriptions |> Array.map (toDescriptionView uniqueId)) }
 
+let createPlayer playerChoice =
+    match playerChoice with
+    | HumanChoice -> "Human", Human
+    | ComputerChoice c -> sprintf "Computer %A" c, Computer (Computer.Players.create c)
+
+let newGame blackPlayer whitePlayer =
+    let startingBoard = Board.startingBoard
+    let gameInfo = Board.toGameInfo startingBoard
+    let black = createPlayer blackPlayer
+    let white = createPlayer whitePlayer
+    let uniqueId = ref 0
+
+    { GameInfo = gameInfo
+      BoardView = toBoardView gameInfo
+      PlayerBlackChoice = blackPlayer
+      PlayerWhiteChoice = whitePlayer
+      PlayerBlack = black
+      PlayerWhite = white
+      BlackDescription = (snd black).Describe() |> Array.map (toDescriptionView uniqueId)
+      WhiteDescription = (snd white).Describe() |> Array.map (toDescriptionView uniqueId)
+      UniqueId = uniqueId }
+
 let updateBoard model board =
     let gameInfo = Board.toGameInfo board
     { model with

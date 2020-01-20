@@ -1,7 +1,5 @@
 module FableReversi.Types
 
-open FableReversi.Reversi
-open FableReversi.Reversi.Runner
 open FableReversi.Lobby.Types
 open FableReversi.Game.Types
 
