@@ -11,9 +11,11 @@
   <ItemGroup>
     <Compile Include="Game.fs" />
     <Compile Include="Series.fs" />
+    <Compile Include="Tournament.fs" />
     <Compile Include="TestBoard.fs" />
     <Compile Include="TestMinimax.fs" />
     <Compile Include="TestMCTS.fs" />
+    <Compile Include="TestTournament.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

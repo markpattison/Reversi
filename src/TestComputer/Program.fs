@@ -8,5 +8,6 @@ let main args =
         TestBoard.allTests
         TestMinimax.allTests
         TestMCTS.allTests
+        //TestTournament.allTests  // slow!
     ]
     |> runTestsWithArgs defaultConfig args

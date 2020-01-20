@@ -1,6 +1,5 @@
 module FableReversi.TestComputer.Series
 
-open FableReversi.Reversi.Computer.Players
 open FableReversi.TestComputer.Game
 
 let seriesSummary pr1 pr2 =
