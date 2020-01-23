@@ -3,6 +3,8 @@ namespace FableReversi.Reversi
 type Bitboard = uint64
 
 module Bitboard =
+    let empty: Bitboard = 0UL
+
     let inline pos (x:int) (y:int) = x + 8 * y
 
     let inline getXY (pos:int) = pos % 8, pos / 8
@@ -153,12 +155,12 @@ module Board =
 
     let startingBoard = {
         WhiteSquares =
-            0UL
+            Bitboard.empty
             |> Bitboard.set (Bitboard.pos 4 3)
             |> Bitboard.set (Bitboard.pos 3 4)
 
         BlackSquares =
-            0UL
+            Bitboard.empty
             |> Bitboard.set (Bitboard.pos 3 3)
             |> Bitboard.set (Bitboard.pos 4 4)
 
@@ -174,7 +176,7 @@ module Board =
         let mutable tryPos = pos + direction
         let mutable foundEmpty = false
         let mutable foundMyColour = false
-        let mutable flips = 0UL
+        let mutable flips = Bitboard.empty
 
         let mySquares, oppSquares =
             match colour with
@@ -192,7 +194,7 @@ module Board =
             tryPos <- tryPos + direction
             squaresToTry <- squaresToTry - 1
 
-        if foundMyColour then flips else 0UL
+        if foundMyColour then flips else Bitboard.empty
 
     let private wouldFlip (board:Board) colour pos (direction, maxSquares) =
         let mutable squaresToTry = maxSquares
@@ -225,7 +227,7 @@ module Board =
             let flips = preCalculatedDirectionsAndMaxSquares.[pos] |> Array.sumBy (fun directionAndMaxSquares -> findFlips board colour pos directionAndMaxSquares)
             flips
         else
-            0UL
+            Bitboard.empty
 
     let isPossibleMove board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
@@ -258,13 +260,13 @@ module Board =
     let getPossibleMovesAndFlips board = [|
         for pos in 0..63 do
             let flips = getFlips board board.NextToMove pos
-            if flips <> 0UL then
+            if flips <> Bitboard.empty then
                 yield { Pos = pos; Flips = flips; Result = moveResult board pos flips }
      |]
 
     let applyMove pos board =
         let flips = getFlips board board.NextToMove pos
-        if flips <> 0UL then
+        if flips <> Bitboard.empty then
             { Pos = pos; Flips = flips; Result = moveResult board pos flips }
         else
             failwithf "move is invalid"
