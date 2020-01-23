@@ -196,7 +196,7 @@ module Board =
 
         if foundMyColour then flips else Bitboard.empty
 
-    let private wouldFlip (board:Board) colour pos (direction, maxSquares) =
+    let private anyFlips (board:Board) colour pos (direction, maxSquares) =
         let mutable squaresToTry = maxSquares
 
         let mutable tryPos = pos + direction
@@ -222,16 +222,16 @@ module Board =
 
         foundColour && foundFlip
 
-    let getFlips board colour pos =
+    let private getFlips board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
             let flips = preCalculatedDirectionsAndMaxSquares.[pos] |> Array.sumBy (fun directionAndMaxSquares -> findFlips board colour pos directionAndMaxSquares)
             flips
         else
             Bitboard.empty
 
-    let isPossibleMove board colour pos =
+    let private isPossibleMove board colour pos =
         if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            preCalculatedDirectionsAndMaxSquares.[pos] |> Array.exists (fun directionAndMaxSquares -> wouldFlip board colour pos directionAndMaxSquares)
+            preCalculatedDirectionsAndMaxSquares.[pos] |> Array.exists (fun directionAndMaxSquares -> anyFlips board colour pos directionAndMaxSquares)
         else
             false
 
