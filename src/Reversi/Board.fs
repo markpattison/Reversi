@@ -183,7 +183,7 @@ module Board =
             | Black -> board.BlackSquares, board.WhiteSquares
             | White -> board.WhiteSquares, board.BlackSquares
 
-        while squaresToTry > 0 && not foundEmpty && not foundMyColour do
+        while not foundEmpty && not foundMyColour && squaresToTry > 0 do
             if Bitboard.isSet tryPos mySquares then
                 foundMyColour <- true
             elif Bitboard.isSet tryPos oppSquares then
@@ -208,7 +208,7 @@ module Board =
             | Black -> board.BlackSquares, board.WhiteSquares
             | White -> board.WhiteSquares, board.BlackSquares
 
-        while squaresToTry > 0 && not foundEmpty && not foundColour do
+        while not foundEmpty && not foundColour && squaresToTry > 0 do
             if Bitboard.isSet tryPos mySquares then
                 foundColour <- true
             elif Bitboard.isSet tryPos oppSquares then
