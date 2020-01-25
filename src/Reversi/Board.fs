@@ -227,11 +227,8 @@ module Board =
         else
             Bitboard.empty
 
-    let private isPossibleMove board colour pos =
-        if not (Bitboard.isSet pos board.WhiteSquares || Bitboard.isSet pos board.BlackSquares) then
-            preCalculatedDirectionsAndMaxSquares.[pos] |> Array.exists (fun directionAndMaxSquares -> anyFlips board colour pos directionAndMaxSquares)
-        else
-            false
+    let private isEmptySquareAPossibleMove board colour pos =
+        preCalculatedDirectionsAndMaxSquares.[pos] |> Array.exists (fun directionAndMaxSquares -> anyFlips board colour pos directionAndMaxSquares)
 
     let private moveResult board pos (flips:Bitboard) =
         let mutable whiteSquares = board.WhiteSquares ^^^ flips
@@ -250,8 +247,9 @@ module Board =
           NextToMove = board.NextToMove.Opposite }
 
     let getPossibleMoves board = [|
+        let allPieces = board.WhiteSquares ||| board.BlackSquares
         for pos in 0..63 do
-            if isPossibleMove board board.NextToMove pos then
+            if not (Bitboard.isSet pos allPieces) && isEmptySquareAPossibleMove board board.NextToMove pos then
                 yield pos
     |]
 
@@ -271,9 +269,13 @@ module Board =
 
     let anyPossibleMovesByOpposite board =
         let opposite = board.NextToMove.Opposite
+        let allPieces = board.WhiteSquares ||| board.BlackSquares
         let mutable found = false
-        for pos in 0..63 do
-            found <- found || isPossibleMove board opposite pos
+        let mutable pos = 0
+
+        while not found && pos <= 63 do
+            found <- not (Bitboard.isSet pos allPieces) && isEmptySquareAPossibleMove board opposite pos
+            pos <- pos + 1
 
         found
 
