@@ -188,11 +188,10 @@ module Board =
                 foundMyColour <- true
             elif Bitboard.isSet tryPos oppSquares then
                 flips <- Bitboard.set tryPos flips
+                tryPos <- tryPos + direction
+                squaresToTry <- squaresToTry - 1
             else
                 foundEmpty <- true
-
-            tryPos <- tryPos + direction
-            squaresToTry <- squaresToTry - 1
 
         if foundMyColour then flips else Bitboard.empty
 
@@ -214,11 +213,10 @@ module Board =
                 foundColour <- true
             elif Bitboard.isSet tryPos oppSquares then
                 foundFlip <- true
+                tryPos <- tryPos + direction
+                squaresToTry <- squaresToTry - 1
             else
                 foundEmpty <- true
-
-            tryPos <- tryPos + direction
-            squaresToTry <- squaresToTry - 1
 
         foundColour && foundFlip
 
