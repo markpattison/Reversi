@@ -151,15 +151,22 @@ let update (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
             | PlayMove possibleMove, Ongoing _ when Array.exists (fun pm -> pm.Pos = possibleMove.Pos) possibleMoves ->
                 if model.GameInfo.Board.NextToMove = White then
                     match model.PlayerBlack with
-                    | _,Computer p -> p.OpponentSelected possibleMove
+                    | _, Computer p -> p.OpponentSelected possibleMove
                     | _ -> ()
                 else
                     match model.PlayerWhite with
-                    | _,Computer p -> p.OpponentSelected possibleMove
+                    | _, Computer p -> p.OpponentSelected possibleMove
                     | _ -> ()
 
                 updateBoard model possibleMove.Result
             | SkipMove, OngoingSkipMove _ ->
+                match model.PlayerBlack with
+                | _, Computer p -> p.OnMoveSkipped()
+                | _ -> ()
+                match model.PlayerWhite with
+                | _, Computer p -> p.OnMoveSkipped()
+                | _ -> ()
+
                 updateBoard model (Actions.skipMove model.GameInfo)
             | _ -> model
 
