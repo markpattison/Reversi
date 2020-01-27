@@ -72,7 +72,7 @@ let rec toDescriptionView uniqueId description =
         { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = None }
     | sd ->
         uniqueId := !uniqueId + 1
-        { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = Some (false, description.SubDescriptions |> Array.map (toDescriptionView uniqueId)) }
+        { Id = !uniqueId; TextView = description.Text; SubDescriptionsView = Some (false, sd |> Array.map (toDescriptionView uniqueId)) }
 
 let createPlayer playerChoice =
     match playerChoice with
