@@ -126,7 +126,7 @@ and Node(parent:Node option,move:PossibleMove option,board:Board) =
 
 
         member this.Describe () =
-            let children = this.GetChildren() |> Array.sortByDescending (fun n -> n.Tries)
+            let children = this.GetChildren() |> Array.sortByDescending (fun n -> n.Chances)
             match children |> Array.tryHead with
             | Some best ->
                 let text = sprintf "Evaluation: %.1f/%d => %.0f%%\n" best.Wins (int best.Tries) (100.0 * best.Chances)
