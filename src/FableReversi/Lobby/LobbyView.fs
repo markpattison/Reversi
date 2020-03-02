@@ -19,6 +19,7 @@ let computerPlayers =
         Minimax (Heuristics.Basic, 1)
         Minimax (Heuristics.Basic, 2)
         MCTS 25
+        MCTS 100
         MCTS 200
     ]
 
