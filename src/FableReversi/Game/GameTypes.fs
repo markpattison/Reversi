@@ -40,8 +40,9 @@ type GameModel =
       PlayerWhiteChoice: PlayerChoice
       PlayerBlack: string * Player
       PlayerWhite: string * Player
-      BlackDescription : DescriptionView []
-      WhiteDescription : DescriptionView []
+      Diagnostics: DescriptionView []
+      DiagnosticMode: bool
+      ComputerMoveWaiting: GameAction option
       UniqueId: int ref }
 
     member this.CurrentPlayer =
@@ -52,8 +53,10 @@ type GameModel =
 type GameMsg =
     | Hover of int * int
     | Click of int * int
+    | ComputerActionReady of GameAction
     | GameAction of GameAction
     | Expand of int
     | RequestComputerMoveIfNeeded
+    | ToggleDiagnosticMode
     | Restart
     | ChangePlayers

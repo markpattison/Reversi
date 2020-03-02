@@ -9,3 +9,8 @@ $fa_font_path: "~@fortawesome/fontawesome-free/webfonts";
 
 // Bulma
 @import "~bulma/bulma";
+
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 0.5em;
+}

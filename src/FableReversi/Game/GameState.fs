@@ -92,25 +92,14 @@ let newGame blackPlayer whitePlayer =
       PlayerWhiteChoice = whitePlayer
       PlayerBlack = black
       PlayerWhite = white
-      BlackDescription = (snd black).Describe() |> Array.map (toDescriptionView uniqueId)
-      WhiteDescription = (snd white).Describe() |> Array.map (toDescriptionView uniqueId)
+      Diagnostics = [||]
+      DiagnosticMode = false
+      ComputerMoveWaiting = None
       UniqueId = uniqueId }
 
 let updateBoard model board =
     let gameInfo = Board.toGameInfo board
-    { model with
-        GameInfo = gameInfo
-        BlackDescription =
-            if board.NextToMove = White then
-                (model.PlayerBlack |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
-            else
-                model.BlackDescription
-        WhiteDescription =
-            if board.NextToMove = Black then
-                (model.PlayerWhite |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
-            else
-                model.WhiteDescription
-        BoardView = toBoardView gameInfo }
+    { model with GameInfo = gameInfo; BoardView = toBoardView gameInfo }
 
 let requestComputerMove (player: ComputerPlayer, board) =
     async {
@@ -145,6 +134,25 @@ let update (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
         | Some possibleMove -> model, Cmd.ofMsg (GameAction (PlayMove possibleMove))
         | None -> model, Cmd.none
 
+    | ComputerActionReady action ->
+        let nextToMove = model.GameInfo.Board.NextToMove
+        if model.DiagnosticMode then
+            let cmd =
+                match action with
+                | SkipMove -> Cmd.none
+                | PlayMove possibleMove ->
+                    let posXY = Bitboard.getXY possibleMove.Pos
+                    Cmd.ofMsg (Hover posXY)
+            { model with
+                ComputerMoveWaiting = Some action
+                Diagnostics =
+                    match nextToMove with
+                    | Black -> (model.PlayerBlack |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
+                    | White -> (model.PlayerWhite |> snd).Describe() |> Array.map (toDescriptionView model.UniqueId)
+            }, cmd
+        else
+            model, Cmd.ofMsg (GameAction action)
+    
     | GameAction action ->
         let newModel =
             match action, model.GameInfo.State with
@@ -159,6 +167,7 @@ let update (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
                     | _ -> ()
 
                 updateBoard model possibleMove.Result
+
             | SkipMove, OngoingSkipMove _ ->
                 match model.PlayerBlack with
                 | _, Computer p -> p.OnMoveSkipped()
@@ -168,25 +177,25 @@ let update (msg : GameMsg) (model : GameModel) : GameModel * Cmd<GameMsg> =
                 | _ -> ()
 
                 updateBoard model (Actions.skipMove model.GameInfo)
+
             | _ -> model
 
-        newModel, Cmd.ofMsg RequestComputerMoveIfNeeded
+        { newModel with ComputerMoveWaiting = None }, Cmd.ofMsg RequestComputerMoveIfNeeded
 
     | RequestComputerMoveIfNeeded ->
-        let computerRequest =
-            match model.GameInfo.State, model.CurrentPlayer with
-            | _, Human -> Cmd.none
-            | Finished _, _ -> Cmd.none
-            | OngoingSkipMove _, _ -> Cmd.ofMsg (GameAction SkipMove)
-            | Ongoing ongoingGame, Computer player ->
-                Cmd.OfAsync.perform requestComputerMove (player, ongoingGame) (PlayMove >> GameAction)
+        match model.GameInfo.State, model.CurrentPlayer with
+        | _, Human -> model, Cmd.none
+        | Finished _, _ -> model, Cmd.none
+        | OngoingSkipMove _, _ -> model, Cmd.ofMsg (GameAction SkipMove)
+        | Ongoing ongoingGame, Computer player ->
+            model, Cmd.OfAsync.perform requestComputerMove (player, ongoingGame) (PlayMove >> ComputerActionReady)
 
-        model, computerRequest
+    | ToggleDiagnosticMode ->
+        { model with DiagnosticMode = not model.DiagnosticMode }, Cmd.none
 
     | Expand descId ->
         { model with
-            BlackDescription = model.BlackDescription |> Array.map (toggleExpanded descId)
-            WhiteDescription = model.WhiteDescription |> Array.map (toggleExpanded descId) }, Cmd.none
+            Diagnostics = model.Diagnostics |> Array.map (toggleExpanded descId) }, Cmd.none
 
     | Restart -> model, Cmd.none // handled at Model level
     | ChangePlayers -> model, Cmd.none // handled at Model level

@@ -123,6 +123,13 @@ let view model dispatch =
         | true, OngoingSkipMove _ -> true
         | _ -> false
 
+    let showDiagnosticMode =
+        match (snd model.PlayerBlack, snd model.PlayerWhite) with
+        | Human, Human -> false
+        | _ -> true
+    
+    let showDiagnostics = model.ComputerMoveWaiting.IsSome
+
     Columns.columns []
       [ Column.column [ Column.Width (Screen.All, Column.Is8) ]
           [ showBoard dispatch humanPlaying model.BoardView ]
@@ -130,14 +137,27 @@ let view model dispatch =
             [ p []
                     [ sprintf "Black (%s): %i " (fst model.PlayerBlack) numBlack |> str
                       if blackToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              showDescription dispatch model.BlackDescription
+              
               p []
                     [ sprintf "White (%s): %i " (fst model.PlayerWhite) numWhite |> str
                       if whiteToPlay then Fa.i [ Fa.Solid.ArrowAltCircleLeft ] [] ]
-              showDescription dispatch model.WhiteDescription
+              
+              if showDiagnostics then
+                  br []
+                  button "Play computer move" (fun _ -> dispatch (GameAction model.ComputerMoveWaiting.Value))
+                  br []
+
               if showSkipButton then
                   br []
                   button "Skip move" (fun _ -> dispatch (GameAction SkipMove))
+              
+              if showDiagnosticMode then
+                  br []
+                  checkBox model.DiagnosticMode "show diagnostics" (fun _ -> dispatch ToggleDiagnosticMode)
+              
+              if showDiagnostics then
+                  showDescription dispatch model.Diagnostics
+
               match result with
               | None -> ()
               | Some r ->

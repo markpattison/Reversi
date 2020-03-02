@@ -8,3 +8,8 @@ let button txt onClick =
         [ Button.Color IsPrimary
           Button.OnClick onClick ]
         [ str txt ]
+
+let checkBox isChecked txt onClick =
+    Checkbox.checkbox [ Props [ Props.OnClick onClick ] ]
+        [ Checkbox.input [ Props [ Props.Checked isChecked ] ]
+          str txt ]
