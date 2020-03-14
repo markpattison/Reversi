@@ -68,6 +68,6 @@ let allTests =
 
             Expect.isFasterThan (fun _ -> tryF Bitboard.count)
                                 (fun _ -> tryF Bitboard.slowCount)
-                                "count is slower than slowCount"
+                                "count should be faster than slowCount"
         )
     ]

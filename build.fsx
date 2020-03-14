@@ -19,6 +19,8 @@ Target.initEnvironment ()
 let clientPath = Path.getFullName "./src/FableReversi"
 let clientDeployPath = Path.combine clientPath "deploy"
 let domainPath = Path.getFullName "./src/Reversi"
+let unitTestPath = Path.getFullName "./src/UnitTests"
+let unitTestPattern = "./src/UnitTests/bin/**/UnitTests.dll"
 let testComputerPath = Path.getFullName "./src/TestComputer"
 let testComputerPattern = "./src/TestComputer/bin/**/TestComputer.dll"
 let deployDir = Path.getFullName "./deploy"
@@ -102,6 +104,13 @@ Target.create "Run" (fun _ ->
 Target.create "Build domain model" (fun _ ->
     runDotNet "build" domainPath)
 
+Target.create "Build unit tests" (fun _ ->
+    runDotNet "build" unitTestPath)
+
+Target.create "Run unit tests" (fun _ ->
+    let testAssembly = !! unitTestPattern
+    Expecto.run id testAssembly)
+
 Target.create "Build computer tests" (fun _ ->
     runDotNet "build" testComputerPath)
 
@@ -112,15 +121,17 @@ Target.create "Test" (fun _ ->
 open Fake.Core.TargetOperators
 
 "Clean"
+    ==> "Build domain model"
+    ==> "Build unit tests"
+    ==> "Run unit tests"
     ==> "InstallClient"
     ==> "Build"
 
-"Clean"
+"Run unit tests"
     ==> "InstallClient"
     ==> "Run"
 
-"Clean"
-    ==> "Build domain model"
+"Run unit tests"
     ==> "Build computer tests"
     ==> "Test"
 

@@ -9,6 +9,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Reversi", "src\Reversi\Reve
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TestComputer", "src\TestComputer\TestComputer.fsproj", "{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}"
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "UnitTests", "src\UnitTests\UnitTests.fsproj", "{4AADBF39-7999-4E76-82CA-1C4EE5BD21B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97D566F1-1D50-47D0-B50D-A82EEFAB12D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AADBF39-7999-4E76-82CA-1C4EE5BD21B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AADBF39-7999-4E76-82CA-1C4EE5BD21B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AADBF39-7999-4E76-82CA-1C4EE5BD21B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AADBF39-7999-4E76-82CA-1C4EE5BD21B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
