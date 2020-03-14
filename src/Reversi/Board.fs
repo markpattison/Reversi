@@ -18,13 +18,32 @@ module Bitboard =
     let inline isSet (pos:int) (board:Bitboard) =
         ((board >>> pos ) &&& 1UL) = 1UL
 
-    let count (board:Bitboard) =
+    let slowCount (board:Bitboard) =
         let mutable count = 0
         let mutable board = board
         while board > 0UL do
             count <- count + int (board &&& 1UL)
             board <- board >>> 1
         count
+
+    let private precalculatedBitCounts =
+        Array.init 256 (fun n ->
+            let mutable count = 0
+            let mutable n' = n
+            while n' > 0 do
+                count <- count + int (n' &&& 1)
+                n' <- n' >>> 1
+            count)
+
+    let count (board:Bitboard) =
+        precalculatedBitCounts.[int (board &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 8) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 16) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 24) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 32) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 40) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 48) &&& 255UL)]
+        + precalculatedBitCounts.[int ((board >>> 56) &&& 255UL)]
 
     let printPos (p:int) =
         let x,y = getXY p

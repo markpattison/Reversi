@@ -39,4 +39,35 @@ let allTests =
                 Expect.equal numBlack 3 "3 black stones after second move"
                 Expect.equal numWhite 3 "3 white stones after second move"
         )
+
+        testCase "count gives same results as slowCount" (fun _ ->
+            let random = System.Random(27)
+            let getNextUint64 () =
+                let buffer : byte[] = Array.zeroCreate sizeof<uint64>
+                random.NextBytes(buffer)
+                System.BitConverter.ToUInt64(buffer, 0)
+            
+            for _ in 1 .. 10000 do
+                let bitboard : Bitboard = getNextUint64()
+                let countResult = Bitboard.count bitboard
+                let slowCountresult = Bitboard.slowCount (bitboard)
+                Expect.equal countResult slowCountresult (sprintf "count and slowCount give different results for %i" bitboard)
+        )
+
+        testCase "count is faster than slowCount" (fun _ ->
+            let random = System.Random(27)
+            let getNextUint64 () =
+                let buffer : byte[] = Array.zeroCreate sizeof<uint64>
+                random.NextBytes(buffer)
+                System.BitConverter.ToUInt64(buffer, 0)
+            
+            let tryF f =
+                for _ in 1 .. 10000 do
+                    let bitboard : Bitboard = getNextUint64()
+                    bitboard |> f |> ignore
+
+            Expect.isFasterThan (fun _ -> tryF Bitboard.count)
+                                (fun _ -> tryF Bitboard.slowCount)
+                                "count is slower than slowCount"
+        )
     ]
